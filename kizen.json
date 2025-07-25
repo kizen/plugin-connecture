@@ -1,7 +1,7 @@
 {
-  "name": "Your Plugin Name Here",
-  "internal_name": "your_plugin_name",
-  "description": "A brief description of your plugin",
+  "name": "Plugin Template",
+  "internal_name": "plugin_template",
+  "description": "A template Kizen plugin. Use this to start building your own. Be sure to change the name and internal name.",
   "version": "1.0.0",
   "release_branches": ["main"],
   "release_environments": ["dev"],
