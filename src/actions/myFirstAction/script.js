@@ -1,1 +1,1 @@
-console.log("This is my first action script!");
+console.log("Action script running");
