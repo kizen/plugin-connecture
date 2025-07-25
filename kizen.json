@@ -1,0 +1,10 @@
+{
+  "name": "Plugin Template",
+  "internal_name": "plugin_template",
+  "description": "A template Kizen plugin. Use this to start building your own. Be sure to change the name and internal name.",
+  "version": "1.0.0",
+  "release_branches": ["main"],
+  "release_environments": ["dev"],
+  "entry": "src/",
+  "engine": "1.0.0"
+}

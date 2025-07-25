@@ -1,0 +1,9 @@
+{
+  "name": "My Floating Frame",
+  "title": "My Floating Frame",
+  "api_name": "myFirstFrame",
+  "header_color": "blue",
+  "header_text_color": "white",
+  "height": 600,
+  "width": 400
+}
