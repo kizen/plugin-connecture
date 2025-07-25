@@ -3,7 +3,7 @@
   "internal_name": "your_plugin_name",
   "description": "A brief description of your plugin",
   "version": "1.0.0",
-  "release_branches": ["branch-to-release-from"],
+  "release_branches": ["main"],
   "release_environments": ["dev"],
   "entry": "src/",
   "engine": "1.0.0"
