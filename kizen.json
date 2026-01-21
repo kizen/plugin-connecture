@@ -1,13 +1,85 @@
 {
-  "name": "Plugin Template",
-  "version": "1.0.0",
-  "api_name": "plugin_template",
-  "description": "A template Kizen plugin. Use this to start building your own. Be sure to change the name and internal name.",
-  "release_branches": ["your-release-branch"],
-  "release_environments": ["dev"],
+  "name": "Connecture",
+  "version": "1.0.1",
+  "published": true,
+  "api_name": "connecture",
+  "description": "Connecture integration for Agent CRM.",
+  "external_link": "https://www.connecture.com/agents/",
+  "release_branches": ["main"],
+  "release_environments": ["dev", "fmo"],
   "entry": "src/",
   "engine": "1.0.0",
   "release_notes_directory": "releaseNotes/",
   "config_template": {},
-  "base_config": {}
+  "base_config": {},
+  "services": [
+    {
+      "auth_type": "basic_auth_token_exchange",
+      "auth_level": "global",
+      "display_name": "plancomparejsastaging",
+      "service_name": "plancomparejsastaging",
+      "auth_credentials": {
+        "level": "global",
+        "payload": "grant_type=client_credentials",
+        "auth_url": "https://staging.drxwebservices.com/AuthAlt/v1/auth/token?format=json",
+        "password": "6ggJ7UcSyVnAwegajCbQrXdRRL7H4wUTaBl5tViiLY",
+        "username": "e1xBjUWuEe6pMwBQVr1ahg",
+        "content_type": "application/x-www-form-urlencoded",
+        "token_field_name": "access_token"
+      },
+      "base_service_url": "https://staging.drxwebservices.com/APIPlanCompareAlt/v1/",
+      "required_entitlement": "connecture_integration_jsastaging"
+    },
+    {
+      "auth_type": "basic_auth_token_exchange",
+      "auth_level": "global",
+      "display_name": "toolsjsastaging",
+      "service_name": "toolsjsastaging",
+      "auth_credentials": {
+        "level": "global",
+        "payload": "grant_type=client_credentials",
+        "auth_url": "https://staging.drxwebservices.com/AuthAlt/v1/auth/token?format=json",
+        "password": "6ggJ7UcSyVnAwegajCbQrXdRRL7H4wUTaBl5tViiLY",
+        "username": "e1xBjUWuEe6pMwBQVr1ahg",
+        "content_type": "application/x-www-form-urlencoded",
+        "token_field_name": "access_token"
+      },
+      "base_service_url": "https://staging.drxwebservices.com/APIToolsAlt/v1/",
+      "required_entitlement": "connecture_integration_jsastaging"
+    },
+    {
+      "auth_type": "basic_auth_token_exchange",
+      "auth_level": "global",
+      "display_name": "plancomparejsa",
+      "service_name": "plancomparejsa",
+      "auth_credentials": {
+        "level": "global",
+        "payload": "grant_type=client_credentials",
+        "auth_url": "https://auth.drxwebservices.com/v1/auth/token?format=json",
+        "password": "7HXpPWGGzAKbCYxeW4kDRecUFqpzSyFs0pmn7A9jg",
+        "username": "e1xBjUWuEe6pMwBQVr1ahg",
+        "content_type": "application/x-www-form-urlencoded",
+        "token_field_name": "access_token"
+      },
+      "base_service_url": "https://drxwebservices.com/APIPlanCompare/v1/",
+      "required_entitlement": "connecture_integration_jsa"
+    },
+    {
+      "auth_type": "basic_auth_token_exchange",
+      "auth_level": "global",
+      "display_name": "toolsjsa",
+      "service_name": "toolsjsa",
+      "auth_credentials": {
+        "level": "global",
+        "payload": "grant_type=client_credentials",
+        "auth_url": "https://auth.drxwebservices.com/v1/auth/token?format=json",
+        "password": "7HXpPWGGzAKbCYxeW4kDRecUFqpzSyFs0pmn7A9jg",
+        "username": "e1xBjUWuEe6pMwBQVr1ahg",
+        "content_type": "application/x-www-form-urlencoded",
+        "token_field_name": "access_token"
+      },
+      "base_service_url": "https://drxwebservices.com/APITools/v1/",
+      "required_entitlement": "connecture_integration_jsa"
+    }
+  ]
 }
