@@ -1,6 +1,6 @@
 {
   "name": "Connecture",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "published": true,
   "api_name": "connecture",
   "description": "Connecture integration for Agent CRM.",
@@ -12,6 +12,11 @@
   "release_notes_directory": "releaseNotes/",
   "config_template": {},
   "base_config": {},
+  "developer_business_id": {
+    "integration": "725f64e5-4124-46cc-92c4-d16049add76e",
+    "staging": "eedc1c3a-281d-4a26-88ea-a684c85fa612",
+    "fmo": "8d718242-26d2-41dc-a76c-ff0677f6242a"
+  },
   "services": [
     {
       "auth_type": "basic_auth_token_exchange",
