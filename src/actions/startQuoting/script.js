@@ -49,6 +49,12 @@ try {
   // Initialize configuration and validate setup
   const { pluginConfig, envConfig, contact, obj } = await initializeConfig.call(this);
 
+  this.console.log("Plugin Config:", pluginConfig);
+  this.console.log("Environment Config:", envConfig);
+  this.console.log("Contact Record:", contact);
+  this.console.log("Object Metadata:", obj);
+  this.console.log("Object Fields:", this.args.pluginId);
+
   // Process contact fields
   const fields = await processContactFields.call(this, contact, obj);
 
