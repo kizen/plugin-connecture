@@ -205,6 +205,7 @@ async function processRelatedRecords(fields, obj, toolsServiceName, contactId) {
   }
 
   const promiseResults = await Promise.allSettled(promises);
+  this.console.log("Related Records Processing Results:", promiseResults);
 
   // Handle results
   let resultIndex = 0;
@@ -309,6 +310,9 @@ async function processProviders(providersField, toolsServiceName, contactId) {
       if (record.name) acc[record.name] = record;
       return acc;
     }, {});
+
+    this.console.log("Connecture Providers Response:", connectureResponse);
+    this.console.log("Mapped Providers:", providerMap);
 
     return connectureResponse.Providers.map((provider) => {
       const record = providerMap[provider.NPI];
