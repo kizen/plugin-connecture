@@ -1,3 +1,5 @@
+this.preserve = true;
+
 // Configuration Constants
 const CONFIG = {
   FIELD_MAPPINGS: {
@@ -437,6 +439,9 @@ async function buildProfileData(fields, toolsServiceName) {
 
 async function createSession(pluginConfig, envConfig) {
   const searchSessionPayload = { BLUserName: pluginConfig.config.npn };
+
+  this.console.log("Creating Connecture session with payload:", searchSessionPayload);
+  this.console.log("Using environment configuration:", envConfig);
 
   const result = await this.post(
     `/external-integrations/proxy/connecture/${envConfig.plan_compare_service_name}/quoting-api/session`,
