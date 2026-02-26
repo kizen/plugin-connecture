@@ -1,6 +1,6 @@
 {
   "name": "Connecture",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "published": true,
   "api_name": "connecture",
   "description": "Connecture integration for Agent CRM.",
