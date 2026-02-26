@@ -28,18 +28,14 @@ const CONFIG = {
     connecture_integration_jsastaging: {
       plan_compare_service_name: "plancomparejsastaging",
       tools_service_name: "toolsjsastaging",
-      sso_url:
-        "https://alg.oktapreview.com/app/alg_connecture2024_1/exka2wr7dsAauvHfE1d7/sso/saml",
-      relay_state_url:
-        "https://jsa7.staging.destinationrx.com/PC/Agent/Profile/EditProfile",
+      sso_url: "https://alg.oktapreview.com/app/alg_connecture2024_1/exka2wr7dsAauvHfE1d7/sso/saml",
+      relay_state_url: "https://jsa7.staging.destinationrx.com/PC/Agent/Profile/EditProfile",
     },
     connecture_integration_jsa: {
       plan_compare_service_name: "plancomparejsa",
       tools_service_name: "toolsjsa",
-      sso_url:
-        "https://agentsso.okta.com/app/agentsso_jsaconnecturedrx2024_1/exk5ephj96v5antsj4h7/sso/saml",
-      relay_state_url:
-        "https://jsa7.destinationrx.com/PC/Agent/Profile/EditProfile",
+      sso_url: "https://agentsso.okta.com/app/agentsso_jsaconnecturedrx2024_1/exk5ephj96v5antsj4h7/sso/saml",
+      relay_state_url: "https://jsa7.destinationrx.com/PC/Agent/Profile/EditProfile",
     },
   },
   REQUIRED_ADDRESS_FIELDS: ["street_address_1", "city", "zipcode", "state"],
@@ -51,8 +47,7 @@ this.setIndicator("button");
 
 try {
   // Initialize configuration and validate setup
-  const { pluginConfig, envConfig, contact, obj } =
-    await initializeConfig.call(this);
+  const { pluginConfig, envConfig, contact, obj } = await initializeConfig.call(this);
 
   // Process contact fields
   const fields = await processContactFields.call(this, contact, obj);
@@ -69,21 +64,8 @@ try {
 
   // Run session management and related records processing in parallel
   const [sessionData, { drugs, providers, pharmacies }] = await Promise.all([
-    handleSessionManagement.call(
-      this,
-      fields,
-      contact,
-      pluginConfig,
-      envConfig,
-      relatedSessionNames,
-    ),
-    processRelatedRecords.call(
-      this,
-      fields,
-      obj,
-      envConfig.tools_service_name,
-      contact.id,
-    ),
+    handleSessionManagement.call(this, fields, contact, pluginConfig, envConfig, relatedSessionNames),
+    processRelatedRecords.call(this, fields, obj, envConfig.tools_service_name, contact.id),
   ]);
 
   // If user cancelled, exit gracefully
@@ -93,14 +75,7 @@ try {
   }
 
   // Launch Connecture
-  await launchConnecture.call(
-    this,
-    sessionData,
-    fields,
-    { drugs, providers, pharmacies },
-    envConfig,
-    pluginConfig,
-  );
+  await launchConnecture.call(this, sessionData, fields, { drugs, providers, pharmacies }, envConfig, pluginConfig);
 } catch (error) {
   this.setIndicator("none");
   throw error;
@@ -116,21 +91,15 @@ async function initializeConfig() {
   ]);
 
   if (!pluginConfig?.config?.npn) {
-    throw new Error(
-      "Your employee record is not configured with your NPN. Please contact your administrator",
-    );
+    throw new Error("Your employee record is not configured with your NPN. Please contact your administrator");
   }
 
   const business = this.currentBusiness;
-  const envKey = Object.keys(business?.entitlements).find(
-    (key) => CONFIG.ENVIRONMENTS[key],
-  );
+  const envKey = Object.keys(business?.entitlements).find((key) => CONFIG.ENVIRONMENTS[key]);
   const envConfig = CONFIG.ENVIRONMENTS[envKey];
 
   if (!envConfig) {
-    throw new Error(
-      "Your business is not configured to connect to Connecture.",
-    );
+    throw new Error("Your business is not configured to connect to Connecture.");
   }
 
   return { pluginConfig, envConfig, contact, obj };
@@ -197,13 +166,9 @@ async function validateRequiredData(fields) {
   }
 
   // Check for required address fields
-  const missingAddressFields = CONFIG.REQUIRED_ADDRESS_FIELDS.filter(
-    (field) => !fields[field],
-  );
+  const missingAddressFields = CONFIG.REQUIRED_ADDRESS_FIELDS.filter((field) => !fields[field]);
   if (missingAddressFields.length > 0) {
-    throw new Error(
-      `Missing required address fields: ${missingAddressFields.join(", ")}`,
-    );
+    throw new Error(`Missing required address fields: ${missingAddressFields.join(", ")}`);
   }
 
   return true;
@@ -228,36 +193,15 @@ async function processRelatedRecords(fields, obj, toolsServiceName, contactId) {
   const promises = [];
 
   if (specialFields.pharmaciesField) {
-    promises.push(
-      processPharmacies.call(
-        this,
-        specialFields.pharmaciesField,
-        toolsServiceName,
-        contactId,
-      ),
-    );
+    promises.push(processPharmacies.call(this, specialFields.pharmaciesField, toolsServiceName, contactId));
   }
 
   if (specialFields.providersField) {
-    promises.push(
-      processProviders.call(
-        this,
-        specialFields.providersField,
-        toolsServiceName,
-        contactId,
-      ),
-    );
+    promises.push(processProviders.call(this, specialFields.providersField, toolsServiceName, contactId));
   }
 
   if (specialFields.drugsField) {
-    promises.push(
-      processDrugs.call(
-        this,
-        specialFields.drugsField,
-        toolsServiceName,
-        contactId,
-      ),
-    );
+    promises.push(processDrugs.call(this, specialFields.drugsField, toolsServiceName, contactId));
   }
 
   const promiseResults = await Promise.allSettled(promises);
@@ -265,33 +209,22 @@ async function processRelatedRecords(fields, obj, toolsServiceName, contactId) {
   // Handle results
   let resultIndex = 0;
   if (specialFields.pharmaciesField) {
-    results.pharmacies =
-      promiseResults[resultIndex].status === "fulfilled"
-        ? promiseResults[resultIndex].value
-        : [];
+    results.pharmacies = promiseResults[resultIndex].status === "fulfilled" ? promiseResults[resultIndex].value : [];
     resultIndex++;
   }
   if (specialFields.providersField) {
-    results.providers =
-      promiseResults[resultIndex].status === "fulfilled"
-        ? promiseResults[resultIndex].value
-        : [];
+    results.providers = promiseResults[resultIndex].status === "fulfilled" ? promiseResults[resultIndex].value : [];
     resultIndex++;
   }
   if (specialFields.drugsField) {
-    results.drugs =
-      promiseResults[resultIndex].status === "fulfilled"
-        ? promiseResults[resultIndex].value
-        : [];
+    results.drugs = promiseResults[resultIndex].status === "fulfilled" ? promiseResults[resultIndex].value : [];
   }
 
   return results;
 }
 
 async function processForField(field, contactId) {
-  const entity = await this.get(
-    `/client/${contactId}?field_category=${encodeURIComponent(field.category)}`,
-  );
+  const entity = await this.get(`/client/${contactId}?field_category=${encodeURIComponent(field.category)}`);
   return entity.fields.filter((f) => f.field === field.id);
 }
 
@@ -300,38 +233,31 @@ function removeCountryCode(phoneNumber) {
 }
 
 function buildContactRecordObject(fieldNameMapper, fields, staticValues = {}) {
-  const connectureFields = Object.entries(fieldNameMapper).reduce(
-    (acc, [connectureField, kizenField]) => {
-      if (!fields[kizenField]) return acc;
+  const connectureFields = Object.entries(fieldNameMapper).reduce((acc, [connectureField, kizenField]) => {
+    if (!fields[kizenField]) return acc;
 
-      let value = fields[kizenField].name ?? fields[kizenField].value;
+    let value = fields[kizenField].name ?? fields[kizenField].value;
 
-      // Apply field-specific transformations
-      if (kizenField === "birthday" && value) {
-        value = new Date(value).toISOString();
-      } else if (kizenField.includes("phone") && value) {
-        value = removeCountryCode(value);
-      } else if (kizenField === "gender" && value) {
-        value = value === "Male" ? 1 : value === "Female" ? 2 : value;
-      }
+    // Apply field-specific transformations
+    if (kizenField === "birthday" && value) {
+      value = new Date(value).toISOString();
+    } else if (kizenField.includes("phone") && value) {
+      value = removeCountryCode(value);
+    } else if (kizenField === "gender" && value) {
+      value = value === "Male" ? 1 : value === "Female" ? 2 : value;
+    }
 
-      if (value) {
-        acc[connectureField] = value;
-      }
-      return acc;
-    },
-    {},
-  );
+    if (value) {
+      acc[connectureField] = value;
+    }
+    return acc;
+  }, {});
 
   return { ...connectureFields, ...staticValues };
 }
 
 async function processPharmacies(pharmaciesField, toolsServiceName, contactId) {
-  const pharmacyIds = await processForField.call(
-    this,
-    pharmaciesField,
-    contactId,
-  );
+  const pharmacyIds = await processForField.call(this, pharmaciesField, contactId);
   if (pharmacyIds.length === 0) return [];
 
   const pharmacyData = await Promise.allSettled(
@@ -342,37 +268,25 @@ async function processPharmacies(pharmaciesField, toolsServiceName, contactId) {
     ),
   );
 
-  return pharmacyData
-    .filter((result) => result.status === "fulfilled" && result.value)
-    .map((result) => result.value);
+  return pharmacyData.filter((result) => result.status === "fulfilled" && result.value).map((result) => result.value);
 }
 
 async function processProviders(providersField, toolsServiceName, contactId) {
-  const providerIds = await processForField.call(
-    this,
-    providersField,
-    contactId,
-  );
+  const providerIds = await processForField.call(this, providersField, contactId);
   if (providerIds.length === 0) return [];
 
   const providerRecords = await Promise.allSettled(
-    providerIds.map((provider) =>
-      this.getEntity(providersField.relation.related_object, provider.value),
-    ),
+    providerIds.map((provider) => this.getEntity(providersField.relation.related_object, provider.value)),
   );
 
   const validProviders = providerRecords
     .filter((result) => result.status === "fulfilled")
     .map((result) => {
       const record = result.value;
-      record.providerFieldValues = Object.values(record.fields).reduce(
-        (acc, field) => {
-          acc[field.name] =
-            typeof field.value === "string" ? field.value : field.value?.name;
-          return acc;
-        },
-        {},
-      );
+      record.providerFieldValues = Object.values(record.fields).reduce((acc, field) => {
+        acc[field.name] = typeof field.value === "string" ? field.value : field.value?.name;
+        return acc;
+      }, {});
       return record;
     });
 
@@ -398,18 +312,19 @@ async function processProviders(providersField, toolsServiceName, contactId) {
 
     return connectureResponse.Providers.map((provider) => {
       const record = providerMap[provider.NPI];
-      const matchedAddress = provider.Addresses?.find(
-        (addr) => addr.Id === record?.providerFieldValues?.npi_ce9d20,
-      );
+      const providerZip = record?.providerFieldValues?.zip;
 
-      return matchedAddress
+      const selectedAddress =
+        provider.Addresses?.find((addr) => addr.ZipCode === providerZip) ?? provider.Addresses?.[0];
+
+      return selectedAddress
         ? {
             ProviderID: provider.Id,
             isPrimary: provider.IsPrimary,
             isVBC: provider.IsVBC,
             isNewPatient: provider.IsNewPatient,
             vbcOrganizationName: provider.VBCOrganizationName,
-            addressId: matchedAddress.Id,
+            addressId: selectedAddress.Id,
           }
         : null;
     }).filter(Boolean);
@@ -420,9 +335,7 @@ async function processProviders(providersField, toolsServiceName, contactId) {
 }
 
 async function getDrugData(drugId) {
-  const drugRecord = await this.get(
-    `/records/medications_medication/${drugId}`,
-  );
+  const drugRecord = await this.get(`/records/medications_medication/${drugId}`);
 
   const drugData = {
     ndc: null,
@@ -452,9 +365,7 @@ async function processDrugs(drugsField, toolsServiceName, contactId) {
 
   try {
     // Get NDC, quantity, and frequency for each drug from Kizen
-    const drugDataList = await Promise.allSettled(
-      drugIds.map((drug) => getDrugData.call(this, drug.value)),
-    );
+    const drugDataList = await Promise.allSettled(drugIds.map((drug) => getDrugData.call(this, drug.value)));
 
     const validDrugData = drugDataList
       .filter((result) => result.status === "fulfilled" && result.value)
@@ -488,8 +399,7 @@ async function getCountyCode(fields, toolsServiceName) {
     if (!Array.isArray(countyResponse)) return null;
 
     const foundCounty = countyResponse.find(
-      (county) =>
-        county.CountyName?.toLowerCase() === fields.county.name.toLowerCase(),
+      (county) => county.CountyName?.toLowerCase() === fields.county.name.toLowerCase(),
     );
 
     return foundCounty?.CountyFIPS || null;
@@ -502,17 +412,10 @@ async function getCountyCode(fields, toolsServiceName) {
 async function buildProfileData(fields, toolsServiceName) {
   const countyCode = await getCountyCode.call(this, fields, toolsServiceName);
 
-  const profileData = buildContactRecordObject(
-    CONFIG.FIELD_MAPPINGS.CONTACT,
-    fields,
-  );
+  const profileData = buildContactRecordObject(CONFIG.FIELD_MAPPINGS.CONTACT, fields);
 
   const staticAddressValues = countyCode ? { county: countyCode } : {};
-  const memberAddressData = buildContactRecordObject(
-    CONFIG.FIELD_MAPPINGS.ADDRESS,
-    fields,
-    staticAddressValues,
-  );
+  const memberAddressData = buildContactRecordObject(CONFIG.FIELD_MAPPINGS.ADDRESS, fields, staticAddressValues);
 
   // Remove county if not found
   if (!countyCode) {
@@ -579,9 +482,7 @@ function getRelatedSessionNames(fields) {
     ? fields.primary_for_saved_session_records
     : [fields.primary_for_saved_session_records];
 
-  return sessions
-    .map((session) => extractSessionId(session.name))
-    .filter(Boolean);
+  return sessions.map((session) => extractSessionId(session.name)).filter(Boolean);
 }
 
 function sortMemberMatches(memberResults, relatedSessionNames) {
@@ -599,11 +500,7 @@ function sortMemberMatches(memberResults, relatedSessionNames) {
   });
 }
 
-async function handleMemberSelection(
-  memberMatches,
-  relatedSessionNames,
-  currentSsoValue,
-) {
+async function handleMemberSelection(memberMatches, relatedSessionNames, currentSsoValue) {
   if (memberMatches.length === 0) return currentSsoValue; // No members found, use the initial random SSO value
 
   const result = await this.prompt({
@@ -617,8 +514,7 @@ async function handleMemberSelection(
     content: [
       {
         type: "description",
-        content:
-          "Record(s) with the same Medicare number were found in Connecture. Please choose one to continue.",
+        content: "Record(s) with the same Medicare number were found in Connecture. Please choose one to continue.",
         widthPercent: 100,
       },
       { type: "spacer", height: 10, widthPercent: 100 },
@@ -627,9 +523,7 @@ async function handleMemberSelection(
         id: "selectedMember",
         options: memberMatches.map((member) => ({
           label: `${member.FirstName} ${member.LastName} ${
-            relatedSessionNames.includes(member.SSOValue)
-              ? "(Linked to this contact) "
-              : ""
+            relatedSessionNames.includes(member.SSOValue) ? "(Linked to this contact) " : ""
           }- Created ${new Date(member.ProfileDate).toLocaleDateString()}`,
           value: member.SSOValue,
         })),
@@ -646,36 +540,16 @@ async function handleMemberSelection(
   return result.canceled ? currentSsoValue : result.values.selectedMember.value; // Use initial SSO if creating new member
 }
 
-async function handleSessionManagement(
-  fields,
-  contact,
-  pluginConfig,
-  envConfig,
-  relatedSessionNames,
-) {
+async function handleSessionManagement(fields, contact, pluginConfig, envConfig, relatedSessionNames) {
   // Create session
-  const { sessionId, ssoValue: initialSsoValue } = await createSession.call(
-    this,
-    pluginConfig,
-    envConfig,
-  );
+  const { sessionId, ssoValue: initialSsoValue } = await createSession.call(this, pluginConfig, envConfig);
 
   // Search for existing members and immediately show selection (depends on sessionId)
-  const memberResults = await searchMembers.call(
-    this,
-    fields,
-    sessionId,
-    envConfig,
-  );
+  const memberResults = await searchMembers.call(this, fields, sessionId, envConfig);
   const sortedMembers = sortMemberMatches(memberResults, relatedSessionNames);
 
   // Handle member selection immediately - this is the critical path
-  const finalSsoValue = await handleMemberSelection.call(
-    this,
-    sortedMembers,
-    relatedSessionNames,
-    initialSsoValue,
-  );
+  const finalSsoValue = await handleMemberSelection.call(this, sortedMembers, relatedSessionNames, initialSsoValue);
 
   // If user cancelled (clicked X), exit gracefully
   if (finalSsoValue === null) {
@@ -683,11 +557,7 @@ async function handleSessionManagement(
   }
 
   // Manage saved session records
-  const manageResult = await manageSavedSessionRecord.call(
-    this,
-    finalSsoValue,
-    contact,
-  );
+  const manageResult = await manageSavedSessionRecord.call(this, finalSsoValue, contact);
 
   if (manageResult === null) {
     return null; // Exit if user cancelled during session record management
@@ -697,13 +567,10 @@ async function handleSessionManagement(
 }
 
 async function manageSavedSessionRecord(ssoValue, contact) {
-  const filteredSessionResponse = await this.post(
-    `/records/sunfire_saved_sessions/search?search=CNX_${ssoValue}`,
-    {
-      field_names: ["name", "id", "applicant", "most_recent_for_applicant"],
-      search_within_field_names: ["name"],
-    },
-  );
+  const filteredSessionResponse = await this.post(`/records/sunfire_saved_sessions/search?search=CNX_${ssoValue}`, {
+    field_names: ["name", "id", "applicant", "most_recent_for_applicant"],
+    search_within_field_names: ["name"],
+  });
 
   if (!filteredSessionResponse?.results) {
     throw new Error("Error searching for existing saved session records.");
@@ -722,14 +589,9 @@ async function manageSavedSessionRecord(ssoValue, contact) {
     });
   } else if (filteredSessions.length === 1) {
     const sessionRecord = filteredSessions[0];
-    const sessionApplicantField = Object.values(sessionRecord.fields).find(
-      (f) => f.name === "applicant",
-    );
+    const sessionApplicantField = Object.values(sessionRecord.fields).find((f) => f.name === "applicant");
 
-    if (
-      sessionApplicantField?.value?.id &&
-      sessionApplicantField.value.id !== contact.id
-    ) {
+    if (sessionApplicantField?.value?.id && sessionApplicantField.value.id !== contact.id) {
       const proceedResult = await this.prompt({
         title: "Existing Session Record Found",
         confirmButton: {
@@ -781,24 +643,12 @@ async function manageSavedSessionRecord(ssoValue, contact) {
       ],
     });
   } else {
-    throw new Error(
-      `Multiple saved session records found for CNX_${ssoValue}.`,
-    );
+    throw new Error(`Multiple saved session records found for CNX_${ssoValue}.`);
   }
 }
 
-async function launchConnecture(
-  sessionData,
-  fields,
-  relatedData,
-  envConfig,
-  pluginConfig,
-) {
-  const { profileData, memberAddressData } = await buildProfileData.call(
-    this,
-    fields,
-    envConfig.tools_service_name,
-  );
+async function launchConnecture(sessionData, fields, relatedData, envConfig, pluginConfig) {
+  const { profileData, memberAddressData } = await buildProfileData.call(this, fields, envConfig.tools_service_name);
   const { drugs, providers, pharmacies } = relatedData;
   const { ssoValue } = sessionData;
 
