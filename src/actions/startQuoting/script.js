@@ -446,6 +446,8 @@ async function createSession(pluginConfig, envConfig) {
     [searchSessionPayload],
   );
 
+  this.console.log("Create Session Response:", { data, error });
+
   if (!data || !data[0]) {
     throw new Error("Unable to create session");
   }
