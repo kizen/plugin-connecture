@@ -271,9 +271,7 @@ async function processPharmacies(pharmaciesField, toolsServiceName, contactId) {
 
   const pharmacyData = await Promise.allSettled(
     pharmacyIds.map((pharmacy) =>
-      this.get(
-        `/external-integrations/proxy/connecture/${toolsServiceName}/quoting-api/Pharmacies/${pharmacy.name}?PharmacyIDType=2`,
-      ),
+      this.get(this.getServiceUrl(toolsServiceName, `/quoting-api/Pharmacies/${pharmacy.name}?PharmacyIDType=2`)),
     ),
   );
 
@@ -309,7 +307,7 @@ async function processProviders(providersField, toolsServiceName, contactId) {
     if (!npis) return [];
 
     const connectureResponse = await this.get(
-      `/external-integrations/proxy/connecture/${toolsServiceName}/quoting-api/Providers/GetByNPIs?npis=${npis}`,
+      this.getServiceUrl(toolsServiceName, `/quoting-api/Providers/GetByNPIs?npis=${npis}`),
     );
 
     if (!connectureResponse?.Providers) return [];
@@ -405,7 +403,7 @@ async function getCountyCode(fields, toolsServiceName) {
 
   try {
     const countyResponse = await this.get(
-      `/external-integrations/proxy/connecture/${toolsServiceName}/quoting-api/Counties/${fields.zipcode.value}`,
+      this.getServiceUrl(toolsServiceName, `/quoting-api/Counties/${fields.zipcode.value}`),
     );
 
     if (!Array.isArray(countyResponse)) return null;
@@ -443,8 +441,8 @@ async function createSession(pluginConfig, envConfig) {
   this.console.log("Creating Connecture session with payload:", searchSessionPayload);
   this.console.log("Using environment configuration:", envConfig);
 
-  const result = await this.post(
-    `/external-integrations/proxy/connecture/${envConfig.plan_compare_service_name}/quoting-api/session`,
+  const { result, errors } = await this.postWithErrors(
+    this.getServiceUrl(envConfig.plan_compare_service_name, "quoting-api/session"),
     [searchSessionPayload],
   );
 
@@ -463,12 +461,11 @@ async function searchMembers(fields, sessionId, envConfig) {
 
   if (fields.medicare_number?.value) {
     try {
-      const results = await this.get(
-        `/external-integrations/proxy/connecture/${
-          envConfig.plan_compare_service_name
-        }/quoting-api/session/${sessionId}/MemberSearch/GetMemberEnrollments?hicn=${encodeURIComponent(
-          fields.medicare_number.value,
-        )}`,
+      const { results, errors } = await this.getWithErrors(
+        this.getServiceUrl(
+          envConfig.plan_compare_service_name,
+          `/session/${sessionId}/MemberSearch/GetMemberEnrollments?hicn=${encodeURIComponent(fields.medicare_number.value)}`,
+        ),
       );
 
       if (Array.isArray(results)) {
@@ -683,10 +680,9 @@ async function launchConnecture(sessionData, fields, relatedData, envConfig, plu
     ...(drugs.length > 0 && { dosages: drugs }),
   };
 
-  await this.post(
-    `/external-integrations/proxy/connecture/${envConfig.plan_compare_service_name}/quoting-api/session`,
-    [updateSessionPayload],
-  );
+  await this.postWithErrors(this.getServiceUrl(envConfig.plan_compare_service_name, "quoting-api/session"), [
+    updateSessionPayload,
+  ]);
 
   this.showToast("Successfully Created Connecture Session", {
     variant: "success",
