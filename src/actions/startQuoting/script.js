@@ -467,7 +467,7 @@ async function searchMembers(fields, sessionId, envConfig) {
 
   if (fields.medicare_number?.value) {
     try {
-      const { data, error } = await this.getWithErrors(
+      const [data, error] = await this.getWithErrors(
         this.getServiceUrl(
           envConfig.plan_compare_service_name,
           `/session/${sessionId}/MemberSearch/GetMemberEnrollments?hicn=${encodeURIComponent(fields.medicare_number.value)}`,
