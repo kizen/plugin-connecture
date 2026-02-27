@@ -441,24 +441,24 @@ async function createSession(pluginConfig, envConfig) {
   this.console.log("Creating Connecture session with payload:", searchSessionPayload);
   this.console.log("Using environment configuration:", envConfig);
 
-  const response = await this.postWithErrors(
+  const [data, error] = await this.postWithErrors(
     this.getServiceUrl(envConfig.plan_compare_service_name, "quoting-api/session"),
     [searchSessionPayload],
   );
 
-  this.console.log("Create Session Response:", response);
+  this.console.log("Create Session Response:", { data, error });
 
-  if (!response.data || !response.data[0]) {
+  if (!data || !data[0]) {
     throw new Error("Unable to create session");
   }
 
-  if (response.error) {
-    throw new Error("Unable to create session: " + (response.error.message ? `: ${response.error.message}` : ""));
+  if (error) {
+    throw new Error("Unable to create session: " + (error.message ? `: ${error.message}` : ""));
   }
 
   return {
-    sessionId: response.data[0].SessionID,
-    ssoValue: response.data[0].SSOValue,
+    sessionId: data[0].SessionID,
+    ssoValue: data[0].SSOValue,
   };
 }
 
