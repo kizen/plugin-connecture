@@ -441,18 +441,22 @@ async function createSession(pluginConfig, envConfig) {
   this.console.log("Creating Connecture session with payload:", searchSessionPayload);
   this.console.log("Using environment configuration:", envConfig);
 
-  const { result, errors } = await this.postWithErrors(
+  const { data, error } = await this.postWithErrors(
     this.getServiceUrl(envConfig.plan_compare_service_name, "quoting-api/session"),
     [searchSessionPayload],
   );
 
-  if (!result || !result[0]) {
+  if (!data || !data[0]) {
     throw new Error("Unable to create session");
   }
 
+  if (error) {
+    throw new Error("Unable to create session: " + (error.message ? `: ${error.message}` : ""));
+  }
+
   return {
-    sessionId: result[0].SessionID,
-    ssoValue: result[0].SSOValue,
+    sessionId: data[0].SessionID,
+    ssoValue: data[0].SSOValue,
   };
 }
 
@@ -461,15 +465,15 @@ async function searchMembers(fields, sessionId, envConfig) {
 
   if (fields.medicare_number?.value) {
     try {
-      const { results, errors } = await this.getWithErrors(
+      const { data, error } = await this.getWithErrors(
         this.getServiceUrl(
           envConfig.plan_compare_service_name,
           `/session/${sessionId}/MemberSearch/GetMemberEnrollments?hicn=${encodeURIComponent(fields.medicare_number.value)}`,
         ),
       );
 
-      if (Array.isArray(results)) {
-        results.forEach((member) => {
+      if (Array.isArray(data) && data.length > 0) {
+        data.forEach((member) => {
           if (member.SSOValue && !memberSearchResults[member.SSOValue]) {
             memberSearchResults[member.SSOValue] = member;
           }
@@ -680,7 +684,7 @@ async function launchConnecture(sessionData, fields, relatedData, envConfig, plu
     ...(drugs.length > 0 && { dosages: drugs }),
   };
 
-  await this.postWithErrors(this.getServiceUrl(envConfig.plan_compare_service_name, "quoting-api/session"), [
+  await this.post(this.getServiceUrl(envConfig.plan_compare_service_name, "quoting-api/session"), [
     updateSessionPayload,
   ]);
 
