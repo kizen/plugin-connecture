@@ -1,5 +1,3 @@
-this.preserve = true;
-
 // Configuration Constants
 const CONFIG = {
   FIELD_MAPPINGS: {
