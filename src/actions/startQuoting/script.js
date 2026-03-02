@@ -51,12 +51,6 @@ try {
   // Initialize configuration and validate setup
   const { pluginConfig, envConfig, contact, obj } = await initializeConfig.call(this);
 
-  this.console.log("Plugin Config:", pluginConfig);
-  this.console.log("Environment Config:", envConfig);
-  this.console.log("Contact Record:", contact);
-  this.console.log("Object Metadata:", obj);
-  this.console.log("Object Fields:", this.args.pluginId);
-
   // Process contact fields
   const fields = await processContactFields.call(this, contact, obj);
 
@@ -176,7 +170,10 @@ async function validateRequiredData(fields) {
   // Check for required address fields
   const missingAddressFields = CONFIG.REQUIRED_ADDRESS_FIELDS.filter((field) => !fields[field]);
   if (missingAddressFields.length > 0) {
-    throw new Error(`Missing required address fields: ${missingAddressFields.join(", ")}`);
+    this.showToast(`Missing required address fields: ${missingAddressFields.join(", ")}`, {
+      variant: "failure",
+    });
+    return false;
   }
 
   return true;
@@ -213,7 +210,6 @@ async function processRelatedRecords(fields, obj, toolsServiceName, contactId) {
   }
 
   const promiseResults = await Promise.allSettled(promises);
-  this.console.log("Related Records Processing Results:", promiseResults);
 
   // Handle results
   let resultIndex = 0;
@@ -316,9 +312,6 @@ async function processProviders(providersField, toolsServiceName, contactId) {
       if (record.name) acc[record.name] = record;
       return acc;
     }, {});
-
-    this.console.log("Connecture Providers Response:", connectureResponse);
-    this.console.log("Mapped Providers:", providerMap);
 
     return connectureResponse.Providers.map((provider) => {
       const record = providerMap[provider.NPI];
@@ -438,22 +431,17 @@ async function buildProfileData(fields, toolsServiceName) {
 async function createSession(pluginConfig, envConfig) {
   const searchSessionPayload = { BLUserName: pluginConfig.config.npn };
 
-  this.console.log("Creating Connecture session with payload:", searchSessionPayload);
-  this.console.log("Using environment configuration:", envConfig);
-
   const [data, error] = await this.postWithErrors(
     this.getServiceUrl(envConfig.plan_compare_service_name, "quoting-api/session"),
     [searchSessionPayload],
   );
-
-  this.console.log("Create Session Response:", { data, error });
 
   if (!data || !data[0]) {
     throw new Error("Unable to create session");
   }
 
   if (error) {
-    throw new Error("Unable to create session: " + (error.message ? `: ${error.message}` : ""));
+    throw new Error("Unable to create session" + (error.message ? ` : ${error.message}` : ""));
   }
 
   return {
