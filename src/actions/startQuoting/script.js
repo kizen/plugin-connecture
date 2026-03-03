@@ -430,7 +430,7 @@ async function createSession(pluginConfig, envConfig) {
   const searchSessionPayload = { BLUserName: pluginConfig.config.npn };
 
   const [data, error] = await this.postWithErrors(
-    this.getServiceUrl(envConfig.plan_compare_service_name, "quoting-api/session"),
+    this.getServiceUrl(envConfig.plan_compare_service_name, "/quoting-api/session"),
     [searchSessionPayload],
   );
 
@@ -456,7 +456,7 @@ async function searchMembers(fields, sessionId, envConfig) {
       const [data, error] = await this.getWithErrors(
         this.getServiceUrl(
           envConfig.plan_compare_service_name,
-          `/session/${sessionId}/MemberSearch/GetMemberEnrollments?hicn=${encodeURIComponent(fields.medicare_number.value)}`,
+          `/quoting-api/session/${sessionId}/MemberSearch/GetMemberEnrollments?hicn=${encodeURIComponent(fields.medicare_number.value)}`,
         ),
       );
 
@@ -672,7 +672,7 @@ async function launchConnecture(sessionData, fields, relatedData, envConfig, plu
     ...(drugs.length > 0 && { dosages: drugs }),
   };
 
-  await this.post(this.getServiceUrl(envConfig.plan_compare_service_name, "quoting-api/session"), [
+  await this.post(this.getServiceUrl(envConfig.plan_compare_service_name, "/quoting-api/session"), [
     updateSessionPayload,
   ]);
 
