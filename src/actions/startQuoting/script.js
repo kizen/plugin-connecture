@@ -78,7 +78,9 @@ try {
   await launchConnecture.call(this, sessionData, fields, { drugs, providers, pharmacies }, envConfig, pluginConfig);
 } catch (error) {
   this.setIndicator("none");
-  throw error;
+  this.showToast(error.message || "An unexpected error occurred", {
+    variant: "failure",
+  });
 }
 
 // Helper Functions
