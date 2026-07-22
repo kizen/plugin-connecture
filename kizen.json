@@ -1,0 +1,114 @@
+{
+  "name": "Connecture",
+  "version": "1.2.1",
+  "published": true,
+  "api_name": "connecture",
+  "description": "Connecture integration for Agent CRM.",
+  "external_link": "https://www.connecture.com/agents/",
+  "release_branches": ["main"],
+  "release_environments": ["dev", "fmo"],
+  "entry": "src/",
+  "engine": "1.0.0",
+  "release_notes_directory": "releaseNotes/",
+  "config_template": {},
+  "base_config": {},
+  "developer_business_id": {
+    "integration": "725f64e5-4124-46cc-92c4-d16049add76e",
+    "staging": "eedc1c3a-281d-4a26-88ea-a684c85fa612",
+    "fmo": "8d718242-26d2-41dc-a76c-ff0677f6242a"
+  },
+  "services": [
+    {
+      "auth_type": "basic_auth_token_exchange",
+      "auth_level": "global",
+      "display_name": "plancomparejsastaging",
+      "service_name": "plancomparejsastaging",
+      "auth_credentials": {
+        "level": "global",
+        "payload": "grant_type=client_credentials",
+        "auth_url": "https://staging.drxwebservices.com/AuthAlt/v1/auth/token?format=json",
+        "password": {
+          "encrypted": true,
+          "value": "eyJ2IjoxLCJhbGciOiJSU0EtT0FFUC0yNTYrQTI1NkdDTSIsImsiOiJMaXZqYVZIZDJWR1VrZlBNK3ZibEt4dnV4REEvZHFHR0RFZ29OSDJDQmNBb0J5MkVicnl1ckpZUzRqYmFKMWV1Sk1iUGNjOEwyYXNaQ0poU0JiRndaaHVESkgraGRFNkMzdVN2TlRMK0xCOVFJU0xQU0M3aDViaWJRc2xHbnJsMEl5MXVIa2IvTisxT3B4TkZUZHl3QjNLR0Uybjc3TEdDY3oxQXhraFYrN3VjbDNYNTFxSFBDT2E3eG1aMWVickdJckZ3SysrNVc2Y2dxWVZ0NCtnNmJkOFUrK1ZBWEMyckFZcTlqVlA3bkpkRkJzNGpobDNkVGVoMG5BbjZ0aytuVEtWdWt6NThYWkExdEc4Z3NFQkp2QmVxbHFGUHhibUFQVnBOcmw3V1ZLajJPU1pDWEhLQ3dFUGFxQ1o4ZDBQcGtEODZpTGdTQnU3aFNmbkhnZ2dyWWNXNktCNG5pRjVVMit5UmNPelE5UW44Zm5sSjJsYUV6NlVRWVZLMVduU2M3bnJXcE0ySTQ4alY4a1RCZ3dHRWtuSy9Dd2VlME5mLzlNUXRMdS9Yb2pVbVN5SmFab2FsRXFidUxiRHYwL2RoUWJzemlCZWxNZ2p2bEhaclQ3VUJRcUpTS0oyNjJhOU02dnpRdlc0Z1ZQZmg4R2xtTUhObDRIdVNIbnZIeFlwSCIsIml2IjoiWXBZd0lEcEtPb3FFcmlzNSIsInRhZyI6Ikk2TC9xOFRKU2t1U05mUFJKOTNZcXc9PSIsImN0IjoiMUYxNExlVUY3ZjVoS3VDdjMxV0hrYWl3STUxK3BXTFJhMTVRTW9LSTZRdE1ISUVrY0NNQm50QUoifQ=="
+        },
+        "username": {
+          "encrypted": true,
+          "value": "eyJ2IjoxLCJhbGciOiJSU0EtT0FFUC0yNTYrQTI1NkdDTSIsImsiOiJYZmd2SVBMZkpXckFtaGhzVk9CU1FmTVQwK090VkVvY3crclBoaG14SVFtc0xCaWN4VWpWbHpMSVJZelBrZVRiNGVvSFB4Wng3elNQeFlDMXJUcTUzQWJNczVMR3MxbjVKWlppTmNENEdkVklOSDhDWVdzdktyK2tYbmU0L2g5emUvWUh3VU5Fcllkb3l0TUhwbUxKWm00YTk0bHNVdXloR245L09vTFBHM243WDdva092dDl6K0JDMW55TUh3UEg0dnFKM3JDQzNucS9qQ0E2ZFJoNHh5NWxOeWI4dmdYQ3FzcTZNWFdpbFQwcFY3WXBzWjFZajI4U0ZtOUdUdUNsYnRMNkxXTFpCcXBRVXpscENJZ0lwZEhiaVZDR1BoRDFpSVh0WkxwV0diN0xxa1RWeVoyT3VMa3FGaEEzWlpFUVFyREtJdXl6QlQrT3NWY3lYbGZDV25Xb3NCZyszbnZQRDRjNTNKWVdGNmtNVHhnM2hPSHBLd3ZaTVFObjZpOTd2VEp5ZE1ubThnRFRwbnhDWWorcFBERW9jeGRZZVVxdG1hUG1zc0NndWI2MFozbXRCcHlsU2ZGL2lDYTRXMDIwRXpwT2ZIM3dWbk5vMlpVSTVaQlRobGJKNzU4ZE9yUXVxRkNEL1BTS2Fjd2lFZ05xbDNZVElOS3NNR1FVdDZQRyIsIml2IjoiR2RZOHlMWWxsQzIzRk5NTSIsInRhZyI6IkdEOEV6QmwrL3YzbUdadDg0N2U0Vnc9PSIsImN0IjoidmIwRFMyYjRrOTNRZnVIVndIdFIzSzRmRSswSDF3PT0ifQ=="
+        },
+        "content_type": "application/x-www-form-urlencoded",
+        "token_field_name": "access_token"
+      },
+      "base_service_url": "https://staging.drxwebservices.com/APIPlanCompareAlt/v1/",
+      "required_entitlement": "connecture_integration_jsastaging"
+    },
+    {
+      "auth_type": "basic_auth_token_exchange",
+      "auth_level": "global",
+      "display_name": "toolsjsastaging",
+      "service_name": "toolsjsastaging",
+      "auth_credentials": {
+        "level": "global",
+        "payload": "grant_type=client_credentials",
+        "auth_url": "https://staging.drxwebservices.com/AuthAlt/v1/auth/token?format=json",
+        "password": {
+          "encrypted": true,
+          "value": "eyJ2IjoxLCJhbGciOiJSU0EtT0FFUC0yNTYrQTI1NkdDTSIsImsiOiJMaXZqYVZIZDJWR1VrZlBNK3ZibEt4dnV4REEvZHFHR0RFZ29OSDJDQmNBb0J5MkVicnl1ckpZUzRqYmFKMWV1Sk1iUGNjOEwyYXNaQ0poU0JiRndaaHVESkgraGRFNkMzdVN2TlRMK0xCOVFJU0xQU0M3aDViaWJRc2xHbnJsMEl5MXVIa2IvTisxT3B4TkZUZHl3QjNLR0Uybjc3TEdDY3oxQXhraFYrN3VjbDNYNTFxSFBDT2E3eG1aMWVickdJckZ3SysrNVc2Y2dxWVZ0NCtnNmJkOFUrK1ZBWEMyckFZcTlqVlA3bkpkRkJzNGpobDNkVGVoMG5BbjZ0aytuVEtWdWt6NThYWkExdEc4Z3NFQkp2QmVxbHFGUHhibUFQVnBOcmw3V1ZLajJPU1pDWEhLQ3dFUGFxQ1o4ZDBQcGtEODZpTGdTQnU3aFNmbkhnZ2dyWWNXNktCNG5pRjVVMit5UmNPelE5UW44Zm5sSjJsYUV6NlVRWVZLMVduU2M3bnJXcE0ySTQ4alY4a1RCZ3dHRWtuSy9Dd2VlME5mLzlNUXRMdS9Yb2pVbVN5SmFab2FsRXFidUxiRHYwL2RoUWJzemlCZWxNZ2p2bEhaclQ3VUJRcUpTS0oyNjJhOU02dnpRdlc0Z1ZQZmg4R2xtTUhObDRIdVNIbnZIeFlwSCIsIml2IjoiWXBZd0lEcEtPb3FFcmlzNSIsInRhZyI6Ikk2TC9xOFRKU2t1U05mUFJKOTNZcXc9PSIsImN0IjoiMUYxNExlVUY3ZjVoS3VDdjMxV0hrYWl3STUxK3BXTFJhMTVRTW9LSTZRdE1ISUVrY0NNQm50QUoifQ=="
+        },
+        "username": {
+          "encrypted": true,
+          "value": "eyJ2IjoxLCJhbGciOiJSU0EtT0FFUC0yNTYrQTI1NkdDTSIsImsiOiJYZmd2SVBMZkpXckFtaGhzVk9CU1FmTVQwK090VkVvY3crclBoaG14SVFtc0xCaWN4VWpWbHpMSVJZelBrZVRiNGVvSFB4Wng3elNQeFlDMXJUcTUzQWJNczVMR3MxbjVKWlppTmNENEdkVklOSDhDWVdzdktyK2tYbmU0L2g5emUvWUh3VU5Fcllkb3l0TUhwbUxKWm00YTk0bHNVdXloR245L09vTFBHM243WDdva092dDl6K0JDMW55TUh3UEg0dnFKM3JDQzNucS9qQ0E2ZFJoNHh5NWxOeWI4dmdYQ3FzcTZNWFdpbFQwcFY3WXBzWjFZajI4U0ZtOUdUdUNsYnRMNkxXTFpCcXBRVXpscENJZ0lwZEhiaVZDR1BoRDFpSVh0WkxwV0diN0xxa1RWeVoyT3VMa3FGaEEzWlpFUVFyREtJdXl6QlQrT3NWY3lYbGZDV25Xb3NCZyszbnZQRDRjNTNKWVdGNmtNVHhnM2hPSHBLd3ZaTVFObjZpOTd2VEp5ZE1ubThnRFRwbnhDWWorcFBERW9jeGRZZVVxdG1hUG1zc0NndWI2MFozbXRCcHlsU2ZGL2lDYTRXMDIwRXpwT2ZIM3dWbk5vMlpVSTVaQlRobGJKNzU4ZE9yUXVxRkNEL1BTS2Fjd2lFZ05xbDNZVElOS3NNR1FVdDZQRyIsIml2IjoiR2RZOHlMWWxsQzIzRk5NTSIsInRhZyI6IkdEOEV6QmwrL3YzbUdadDg0N2U0Vnc9PSIsImN0IjoidmIwRFMyYjRrOTNRZnVIVndIdFIzSzRmRSswSDF3PT0ifQ=="
+        },
+        "content_type": "application/x-www-form-urlencoded",
+        "token_field_name": "access_token"
+      },
+      "base_service_url": "https://staging.drxwebservices.com/APIToolsAlt/v1/",
+      "required_entitlement": "connecture_integration_jsastaging"
+    },
+    {
+      "auth_type": "basic_auth_token_exchange",
+      "auth_level": "global",
+      "display_name": "plancomparejsa",
+      "service_name": "plancomparejsa",
+      "auth_credentials": {
+        "level": "global",
+        "payload": "grant_type=client_credentials",
+        "auth_url": "https://auth.drxwebservices.com/v1/auth/token?format=json",
+        "password": {
+          "encrypted": true,
+          "value": "eyJ2IjoxLCJhbGciOiJSU0EtT0FFUC0yNTYrQTI1NkdDTSIsImsiOiJzSGxHTnFNNUtycHU2dmZVZjF1SHhEWHhSajRUM2xkUGZIRUYrVHVpYnRxQ25KOFJzaXVqV2VGWFIwR2J0QXpVTm5QNmppelNYZG9RSzAxeHZDUUpaY3FMclJTOUtmVlkxSlZDamV5WlRrZHBmaHNEWXZSbDdZdHJQc2l3d2lkaHdwTGxtKzhWWVFXRFZ3RTBzempUUkZqdWlOb25MU09DR0xoVnkwUlh5eE9xbnFsbjNxUW9KQnZOeTZkd3dVZkV2NUxFTXRmOGFkZzZDdEpVTGlZemJKY1JZZk1Rdit1eEd4QVB6NmpZZHNyZGZxVW80NHJPUzFsMG9wcVhNMHJ1M09RWkRjL0orNVg1QkZhQng4M0NNeHVTZ2orZWs0bVQrbXNpL1RCRDJjSm9JV1BlZk1nQzJQWkF0QVhGVTRxalI1Ym10ZUdKYU96Lzl0WTZXNEN0a3BOMlo5d3puYy9aeXRNbk5CeExGTDYxL0RQTzZVQ3JQcVZtenJjakY1d1NhTjBjSkhIUk5RSkkyQzVQTUlVaFp6eCs3VE8zQXh1TzJ3MkE5TWJIT2lLZFptZ3VuaXRJZVE1VmprOHlrUmcwRFdxem94VXZzWGREc01jNTBJRUFScjM2T01HZU5nZWxHUWxqSk5TYkRGcElzTjZlUWtCbGJtYno5aFpHTWc5eiIsIml2IjoiWWo4MElsM0k1Mk5OaWs4aCIsInRhZyI6Ik9uL0xMWG1yc05RL3N3TnpQaGVQUWc9PSIsImN0IjoiWWNUT201dWdkVWFQK0svUjkveWJUY2QvbDA5VkhYMlA2RmFiM3oxdnIvemNmbmpoaFpxT3hnYz0ifQ=="
+        },
+        "username": {
+          "encrypted": true,
+          "value": "eyJ2IjoxLCJhbGciOiJSU0EtT0FFUC0yNTYrQTI1NkdDTSIsImsiOiJYZmd2SVBMZkpXckFtaGhzVk9CU1FmTVQwK090VkVvY3crclBoaG14SVFtc0xCaWN4VWpWbHpMSVJZelBrZVRiNGVvSFB4Wng3elNQeFlDMXJUcTUzQWJNczVMR3MxbjVKWlppTmNENEdkVklOSDhDWVdzdktyK2tYbmU0L2g5emUvWUh3VU5Fcllkb3l0TUhwbUxKWm00YTk0bHNVdXloR245L09vTFBHM243WDdva092dDl6K0JDMW55TUh3UEg0dnFKM3JDQzNucS9qQ0E2ZFJoNHh5NWxOeWI4dmdYQ3FzcTZNWFdpbFQwcFY3WXBzWjFZajI4U0ZtOUdUdUNsYnRMNkxXTFpCcXBRVXpscENJZ0lwZEhiaVZDR1BoRDFpSVh0WkxwV0diN0xxa1RWeVoyT3VMa3FGaEEzWlpFUVFyREtJdXl6QlQrT3NWY3lYbGZDV25Xb3NCZyszbnZQRDRjNTNKWVdGNmtNVHhnM2hPSHBLd3ZaTVFObjZpOTd2VEp5ZE1ubThnRFRwbnhDWWorcFBERW9jeGRZZVVxdG1hUG1zc0NndWI2MFozbXRCcHlsU2ZGL2lDYTRXMDIwRXpwT2ZIM3dWbk5vMlpVSTVaQlRobGJKNzU4ZE9yUXVxRkNEL1BTS2Fjd2lFZ05xbDNZVElOS3NNR1FVdDZQRyIsIml2IjoiR2RZOHlMWWxsQzIzRk5NTSIsInRhZyI6IkdEOEV6QmwrL3YzbUdadDg0N2U0Vnc9PSIsImN0IjoidmIwRFMyYjRrOTNRZnVIVndIdFIzSzRmRSswSDF3PT0ifQ=="
+        },
+        "content_type": "application/x-www-form-urlencoded",
+        "token_field_name": "access_token"
+      },
+      "base_service_url": "https://drxwebservices.com/APIPlanCompare/v1/",
+      "required_entitlement": "connecture_integration_jsa"
+    },
+    {
+      "auth_type": "basic_auth_token_exchange",
+      "auth_level": "global",
+      "display_name": "toolsjsa",
+      "service_name": "toolsjsa",
+      "auth_credentials": {
+        "level": "global",
+        "payload": "grant_type=client_credentials",
+        "auth_url": "https://auth.drxwebservices.com/v1/auth/token?format=json",
+        "password": {
+          "encrypted": true,
+          "value": "eyJ2IjoxLCJhbGciOiJSU0EtT0FFUC0yNTYrQTI1NkdDTSIsImsiOiJzSGxHTnFNNUtycHU2dmZVZjF1SHhEWHhSajRUM2xkUGZIRUYrVHVpYnRxQ25KOFJzaXVqV2VGWFIwR2J0QXpVTm5QNmppelNYZG9RSzAxeHZDUUpaY3FMclJTOUtmVlkxSlZDamV5WlRrZHBmaHNEWXZSbDdZdHJQc2l3d2lkaHdwTGxtKzhWWVFXRFZ3RTBzempUUkZqdWlOb25MU09DR0xoVnkwUlh5eE9xbnFsbjNxUW9KQnZOeTZkd3dVZkV2NUxFTXRmOGFkZzZDdEpVTGlZemJKY1JZZk1Rdit1eEd4QVB6NmpZZHNyZGZxVW80NHJPUzFsMG9wcVhNMHJ1M09RWkRjL0orNVg1QkZhQng4M0NNeHVTZ2orZWs0bVQrbXNpL1RCRDJjSm9JV1BlZk1nQzJQWkF0QVhGVTRxalI1Ym10ZUdKYU96Lzl0WTZXNEN0a3BOMlo5d3puYy9aeXRNbk5CeExGTDYxL0RQTzZVQ3JQcVZtenJjakY1d1NhTjBjSkhIUk5RSkkyQzVQTUlVaFp6eCs3VE8zQXh1TzJ3MkE5TWJIT2lLZFptZ3VuaXRJZVE1VmprOHlrUmcwRFdxem94VXZzWGREc01jNTBJRUFScjM2T01HZU5nZWxHUWxqSk5TYkRGcElzTjZlUWtCbGJtYno5aFpHTWc5eiIsIml2IjoiWWo4MElsM0k1Mk5OaWs4aCIsInRhZyI6Ik9uL0xMWG1yc05RL3N3TnpQaGVQUWc9PSIsImN0IjoiWWNUT201dWdkVWFQK0svUjkveWJUY2QvbDA5VkhYMlA2RmFiM3oxdnIvemNmbmpoaFpxT3hnYz0ifQ=="
+        },
+        "username": {
+          "encrypted": true,
+          "value": "eyJ2IjoxLCJhbGciOiJSU0EtT0FFUC0yNTYrQTI1NkdDTSIsImsiOiJYZmd2SVBMZkpXckFtaGhzVk9CU1FmTVQwK090VkVvY3crclBoaG14SVFtc0xCaWN4VWpWbHpMSVJZelBrZVRiNGVvSFB4Wng3elNQeFlDMXJUcTUzQWJNczVMR3MxbjVKWlppTmNENEdkVklOSDhDWVdzdktyK2tYbmU0L2g5emUvWUh3VU5Fcllkb3l0TUhwbUxKWm00YTk0bHNVdXloR245L09vTFBHM243WDdva092dDl6K0JDMW55TUh3UEg0dnFKM3JDQzNucS9qQ0E2ZFJoNHh5NWxOeWI4dmdYQ3FzcTZNWFdpbFQwcFY3WXBzWjFZajI4U0ZtOUdUdUNsYnRMNkxXTFpCcXBRVXpscENJZ0lwZEhiaVZDR1BoRDFpSVh0WkxwV0diN0xxa1RWeVoyT3VMa3FGaEEzWlpFUVFyREtJdXl6QlQrT3NWY3lYbGZDV25Xb3NCZyszbnZQRDRjNTNKWVdGNmtNVHhnM2hPSHBLd3ZaTVFObjZpOTd2VEp5ZE1ubThnRFRwbnhDWWorcFBERW9jeGRZZVVxdG1hUG1zc0NndWI2MFozbXRCcHlsU2ZGL2lDYTRXMDIwRXpwT2ZIM3dWbk5vMlpVSTVaQlRobGJKNzU4ZE9yUXVxRkNEL1BTS2Fjd2lFZ05xbDNZVElOS3NNR1FVdDZQRyIsIml2IjoiR2RZOHlMWWxsQzIzRk5NTSIsInRhZyI6IkdEOEV6QmwrL3YzbUdadDg0N2U0Vnc9PSIsImN0IjoidmIwRFMyYjRrOTNRZnVIVndIdFIzSzRmRSswSDF3PT0ifQ=="
+        },
+        "content_type": "application/x-www-form-urlencoded",
+        "token_field_name": "access_token"
+      },
+      "base_service_url": "https://drxwebservices.com/APITools/v1/",
+      "required_entitlement": "connecture_integration_jsa"
+    }
+  ]
+}
