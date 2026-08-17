@@ -26,12 +26,14 @@ const CONFIG = {
   },
   ENVIRONMENTS: {
     connecture_integration_jsastaging: {
+      client_id: "JSA",
       plan_compare_service_name: "plancomparejsastaging",
       tools_service_name: "toolsjsastaging",
       sso_url: "https://alg.oktapreview.com/app/alg_connecture2024_1/exka2wr7dsAauvHfE1d7/sso/saml",
       relay_state_url: "https://jsa7.staging.destinationrx.com/PC/Agent/Profile/EditProfile",
     },
     connecture_integration_jsa: {
+      client_id: "JSA",
       plan_compare_service_name: "plancomparejsa",
       tools_service_name: "toolsjsa",
       sso_url: "https://agentsso.okta.com/app/agentsso_jsaconnecturedrx2024_1/exk5ephj96v5antsj4h7/sso/saml",
@@ -65,7 +67,7 @@ try {
   // Run session management and related records processing in parallel
   const [sessionData, { drugs, providers, pharmacies }] = await Promise.all([
     handleSessionManagement.call(this, fields, contact, pluginConfig, envConfig, relatedSessionNames),
-    processRelatedRecords.call(this, fields, obj, envConfig.tools_service_name, contact.id),
+    processRelatedRecords.call(this, fields, obj, envConfig.tools_service_name, contact.id, envConfig.client_id),
   ]);
 
   // If user cancelled, exit gracefully
@@ -190,7 +192,7 @@ function getSpecialFields(objFields) {
   return specialFields;
 }
 
-async function processRelatedRecords(fields, obj, toolsServiceName, contactId) {
+async function processRelatedRecords(fields, obj, toolsServiceName, contactId, clientId) {
   const specialFields = getSpecialFields(obj.fields);
   const results = { pharmacies: [], providers: [], drugs: [] };
 
@@ -198,11 +200,11 @@ async function processRelatedRecords(fields, obj, toolsServiceName, contactId) {
   const promises = [];
 
   if (specialFields.pharmaciesField) {
-    promises.push(processPharmacies.call(this, specialFields.pharmaciesField, toolsServiceName, contactId));
+    promises.push(processPharmacies.call(this, specialFields.pharmaciesField, toolsServiceName, contactId, clientId));
   }
 
   if (specialFields.providersField) {
-    promises.push(processProviders.call(this, specialFields.providersField, toolsServiceName, contactId));
+    promises.push(processProviders.call(this, specialFields.providersField, toolsServiceName, contactId, clientId));
   }
 
   if (specialFields.drugsField) {
@@ -261,20 +263,22 @@ function buildContactRecordObject(fieldNameMapper, fields, staticValues = {}) {
   return { ...connectureFields, ...staticValues };
 }
 
-async function processPharmacies(pharmaciesField, toolsServiceName, contactId) {
+async function processPharmacies(pharmaciesField, toolsServiceName, contactId, clientId) {
   const pharmacyIds = await processForField.call(this, pharmaciesField, contactId);
   if (pharmacyIds.length === 0) return [];
 
   const pharmacyData = await Promise.allSettled(
     pharmacyIds.map((pharmacy) =>
-      this.get(this.getServiceUrl(toolsServiceName, `/quoting-api/Pharmacies/${pharmacy.name}?PharmacyIDType=2`)),
+      this.get(this.getServiceUrl(toolsServiceName, `/quoting-api/Pharmacies/${pharmacy.name}?PharmacyIDType=2`), {
+        headers: { "Client-ID": clientId },
+      }),
     ),
   );
 
   return pharmacyData.filter((result) => result.status === "fulfilled" && result.value).map((result) => result.value);
 }
 
-async function processProviders(providersField, toolsServiceName, contactId) {
+async function processProviders(providersField, toolsServiceName, contactId, clientId) {
   const providerIds = await processForField.call(this, providersField, contactId);
   if (providerIds.length === 0) return [];
 
@@ -304,6 +308,7 @@ async function processProviders(providersField, toolsServiceName, contactId) {
 
     const connectureResponse = await this.get(
       this.getServiceUrl(toolsServiceName, `/quoting-api/Providers/GetByNPIs?npis=${npis}`),
+      { headers: { "Client-ID": clientId } },
     );
 
     if (!connectureResponse?.Providers) return [];
@@ -391,12 +396,13 @@ async function processDrugs(drugsField, toolsServiceName, contactId) {
   }
 }
 
-async function getCountyCode(fields, toolsServiceName) {
+async function getCountyCode(fields, toolsServiceName, clientId) {
   if (!fields?.zipcode?.value || !fields?.county?.name) return null;
 
   try {
     const countyResponse = await this.get(
       this.getServiceUrl(toolsServiceName, `/quoting-api/Counties/${fields.zipcode.value}`),
+      { headers: { "Client-ID": clientId } },
     );
 
     if (!Array.isArray(countyResponse)) return null;
@@ -412,8 +418,8 @@ async function getCountyCode(fields, toolsServiceName) {
   }
 }
 
-async function buildProfileData(fields, toolsServiceName) {
-  const countyCode = await getCountyCode.call(this, fields, toolsServiceName);
+async function buildProfileData(fields, toolsServiceName, clientId) {
+  const countyCode = await getCountyCode.call(this, fields, toolsServiceName, clientId);
 
   const profileData = buildContactRecordObject(CONFIG.FIELD_MAPPINGS.CONTACT, fields);
 
@@ -654,7 +660,12 @@ async function manageSavedSessionRecord(ssoValue, contact) {
 }
 
 async function launchConnecture(sessionData, fields, relatedData, envConfig, pluginConfig) {
-  const { profileData, memberAddressData } = await buildProfileData.call(this, fields, envConfig.tools_service_name);
+  const { profileData, memberAddressData } = await buildProfileData.call(
+    this,
+    fields,
+    envConfig.tools_service_name,
+    envConfig.client_id,
+  );
   const { drugs, providers, pharmacies } = relatedData;
   const { ssoValue } = sessionData;
 
