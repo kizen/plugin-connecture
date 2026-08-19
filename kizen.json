@@ -1,6 +1,6 @@
 {
   "name": "Connecture",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "published": true,
   "api_name": "connecture",
   "description": "Connecture integration for Agent CRM.",
@@ -26,7 +26,7 @@
       "auth_credentials": {
         "level": "global",
         "payload": "grant_type=client_credentials",
-        "auth_url": "https://staging.drxwebservices.com/AuthAlt/v1/auth/token?format=json",
+        "auth_url": "https://staging-auth.cnxrwebservices.com/v1/auth/token?format=json",
         "password": {
           "encrypted": true,
           "value": "eyJ2IjoxLCJhbGciOiJSU0EtT0FFUC0yNTYrQTI1NkdDTSIsImsiOiJMaXZqYVZIZDJWR1VrZlBNK3ZibEt4dnV4REEvZHFHR0RFZ29OSDJDQmNBb0J5MkVicnl1ckpZUzRqYmFKMWV1Sk1iUGNjOEwyYXNaQ0poU0JiRndaaHVESkgraGRFNkMzdVN2TlRMK0xCOVFJU0xQU0M3aDViaWJRc2xHbnJsMEl5MXVIa2IvTisxT3B4TkZUZHl3QjNLR0Uybjc3TEdDY3oxQXhraFYrN3VjbDNYNTFxSFBDT2E3eG1aMWVickdJckZ3SysrNVc2Y2dxWVZ0NCtnNmJkOFUrK1ZBWEMyckFZcTlqVlA3bkpkRkJzNGpobDNkVGVoMG5BbjZ0aytuVEtWdWt6NThYWkExdEc4Z3NFQkp2QmVxbHFGUHhibUFQVnBOcmw3V1ZLajJPU1pDWEhLQ3dFUGFxQ1o4ZDBQcGtEODZpTGdTQnU3aFNmbkhnZ2dyWWNXNktCNG5pRjVVMit5UmNPelE5UW44Zm5sSjJsYUV6NlVRWVZLMVduU2M3bnJXcE0ySTQ4alY4a1RCZ3dHRWtuSy9Dd2VlME5mLzlNUXRMdS9Yb2pVbVN5SmFab2FsRXFidUxiRHYwL2RoUWJzemlCZWxNZ2p2bEhaclQ3VUJRcUpTS0oyNjJhOU02dnpRdlc0Z1ZQZmg4R2xtTUhObDRIdVNIbnZIeFlwSCIsIml2IjoiWXBZd0lEcEtPb3FFcmlzNSIsInRhZyI6Ikk2TC9xOFRKU2t1U05mUFJKOTNZcXc9PSIsImN0IjoiMUYxNExlVUY3ZjVoS3VDdjMxV0hrYWl3STUxK3BXTFJhMTVRTW9LSTZRdE1ISUVrY0NNQm50QUoifQ=="
@@ -49,7 +49,7 @@
       "auth_credentials": {
         "level": "global",
         "payload": "grant_type=client_credentials",
-        "auth_url": "https://staging.drxwebservices.com/AuthAlt/v1/auth/token?format=json",
+        "auth_url": "https://staging-auth.cnxrwebservices.com/v1/auth/token?format=json",
         "password": {
           "encrypted": true,
           "value": "eyJ2IjoxLCJhbGciOiJSU0EtT0FFUC0yNTYrQTI1NkdDTSIsImsiOiJMaXZqYVZIZDJWR1VrZlBNK3ZibEt4dnV4REEvZHFHR0RFZ29OSDJDQmNBb0J5MkVicnl1ckpZUzRqYmFKMWV1Sk1iUGNjOEwyYXNaQ0poU0JiRndaaHVESkgraGRFNkMzdVN2TlRMK0xCOVFJU0xQU0M3aDViaWJRc2xHbnJsMEl5MXVIa2IvTisxT3B4TkZUZHl3QjNLR0Uybjc3TEdDY3oxQXhraFYrN3VjbDNYNTFxSFBDT2E3eG1aMWVickdJckZ3SysrNVc2Y2dxWVZ0NCtnNmJkOFUrK1ZBWEMyckFZcTlqVlA3bkpkRkJzNGpobDNkVGVoMG5BbjZ0aytuVEtWdWt6NThYWkExdEc4Z3NFQkp2QmVxbHFGUHhibUFQVnBOcmw3V1ZLajJPU1pDWEhLQ3dFUGFxQ1o4ZDBQcGtEODZpTGdTQnU3aFNmbkhnZ2dyWWNXNktCNG5pRjVVMit5UmNPelE5UW44Zm5sSjJsYUV6NlVRWVZLMVduU2M3bnJXcE0ySTQ4alY4a1RCZ3dHRWtuSy9Dd2VlME5mLzlNUXRMdS9Yb2pVbVN5SmFab2FsRXFidUxiRHYwL2RoUWJzemlCZWxNZ2p2bEhaclQ3VUJRcUpTS0oyNjJhOU02dnpRdlc0Z1ZQZmg4R2xtTUhObDRIdVNIbnZIeFlwSCIsIml2IjoiWXBZd0lEcEtPb3FFcmlzNSIsInRhZyI6Ikk2TC9xOFRKU2t1U05mUFJKOTNZcXc9PSIsImN0IjoiMUYxNExlVUY3ZjVoS3VDdjMxV0hrYWl3STUxK3BXTFJhMTVRTW9LSTZRdE1ISUVrY0NNQm50QUoifQ=="
@@ -61,7 +61,7 @@
         "content_type": "application/x-www-form-urlencoded",
         "token_field_name": "access_token"
       },
-      "base_service_url": "https://staging.drxwebservices.com/APIToolsAlt/v1/",
+      "base_service_url": "https://staging.cnxrwebservices.com/APITools/V1/",
       "required_entitlement": "connecture_integration_jsastaging"
     },
     {
