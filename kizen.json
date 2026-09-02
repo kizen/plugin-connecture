@@ -1,6 +1,6 @@
 {
   "name": "Connecture",
-  "version": "1.2.3",
+  "version": "1.2.2",
   "published": true,
   "api_name": "connecture",
   "description": "Connecture integration for Agent CRM.",
@@ -72,7 +72,7 @@
       "auth_credentials": {
         "level": "global",
         "payload": "grant_type=client_credentials",
-        "auth_url": "https://auth.cnxrwebservices.com/v1/auth/token?format=json",
+        "auth_url": "https://auth.drxwebservices.com/v1/auth/token?format=json",
         "password": {
           "encrypted": true,
           "value": "eyJ2IjoxLCJhbGciOiJSU0EtT0FFUC0yNTYrQTI1NkdDTSIsImsiOiJzSGxHTnFNNUtycHU2dmZVZjF1SHhEWHhSajRUM2xkUGZIRUYrVHVpYnRxQ25KOFJzaXVqV2VGWFIwR2J0QXpVTm5QNmppelNYZG9RSzAxeHZDUUpaY3FMclJTOUtmVlkxSlZDamV5WlRrZHBmaHNEWXZSbDdZdHJQc2l3d2lkaHdwTGxtKzhWWVFXRFZ3RTBzempUUkZqdWlOb25MU09DR0xoVnkwUlh5eE9xbnFsbjNxUW9KQnZOeTZkd3dVZkV2NUxFTXRmOGFkZzZDdEpVTGlZemJKY1JZZk1Rdit1eEd4QVB6NmpZZHNyZGZxVW80NHJPUzFsMG9wcVhNMHJ1M09RWkRjL0orNVg1QkZhQng4M0NNeHVTZ2orZWs0bVQrbXNpL1RCRDJjSm9JV1BlZk1nQzJQWkF0QVhGVTRxalI1Ym10ZUdKYU96Lzl0WTZXNEN0a3BOMlo5d3puYy9aeXRNbk5CeExGTDYxL0RQTzZVQ3JQcVZtenJjakY1d1NhTjBjSkhIUk5RSkkyQzVQTUlVaFp6eCs3VE8zQXh1TzJ3MkE5TWJIT2lLZFptZ3VuaXRJZVE1VmprOHlrUmcwRFdxem94VXZzWGREc01jNTBJRUFScjM2T01HZU5nZWxHUWxqSk5TYkRGcElzTjZlUWtCbGJtYno5aFpHTWc5eiIsIml2IjoiWWo4MElsM0k1Mk5OaWs4aCIsInRhZyI6Ik9uL0xMWG1yc05RL3N3TnpQaGVQUWc9PSIsImN0IjoiWWNUT201dWdkVWFQK0svUjkveWJUY2QvbDA5VkhYMlA2RmFiM3oxdnIvemNmbmpoaFpxT3hnYz0ifQ=="
@@ -95,7 +95,7 @@
       "auth_credentials": {
         "level": "global",
         "payload": "grant_type=client_credentials",
-        "auth_url": "https://auth.cnxrwebservices.com/v1/auth/token?format=json",
+        "auth_url": "https://auth.drxwebservices.com/v1/auth/token?format=json",
         "password": {
           "encrypted": true,
           "value": "eyJ2IjoxLCJhbGciOiJSU0EtT0FFUC0yNTYrQTI1NkdDTSIsImsiOiJzSGxHTnFNNUtycHU2dmZVZjF1SHhEWHhSajRUM2xkUGZIRUYrVHVpYnRxQ25KOFJzaXVqV2VGWFIwR2J0QXpVTm5QNmppelNYZG9RSzAxeHZDUUpaY3FMclJTOUtmVlkxSlZDamV5WlRrZHBmaHNEWXZSbDdZdHJQc2l3d2lkaHdwTGxtKzhWWVFXRFZ3RTBzempUUkZqdWlOb25MU09DR0xoVnkwUlh5eE9xbnFsbjNxUW9KQnZOeTZkd3dVZkV2NUxFTXRmOGFkZzZDdEpVTGlZemJKY1JZZk1Rdit1eEd4QVB6NmpZZHNyZGZxVW80NHJPUzFsMG9wcVhNMHJ1M09RWkRjL0orNVg1QkZhQng4M0NNeHVTZ2orZWs0bVQrbXNpL1RCRDJjSm9JV1BlZk1nQzJQWkF0QVhGVTRxalI1Ym10ZUdKYU96Lzl0WTZXNEN0a3BOMlo5d3puYy9aeXRNbk5CeExGTDYxL0RQTzZVQ3JQcVZtenJjakY1d1NhTjBjSkhIUk5RSkkyQzVQTUlVaFp6eCs3VE8zQXh1TzJ3MkE5TWJIT2lLZFptZ3VuaXRJZVE1VmprOHlrUmcwRFdxem94VXZzWGREc01jNTBJRUFScjM2T01HZU5nZWxHUWxqSk5TYkRGcElzTjZlUWtCbGJtYno5aFpHTWc5eiIsIml2IjoiWWo4MElsM0k1Mk5OaWs4aCIsInRhZyI6Ik9uL0xMWG1yc05RL3N3TnpQaGVQUWc9PSIsImN0IjoiWWNUT201dWdkVWFQK0svUjkveWJUY2QvbDA5VkhYMlA2RmFiM3oxdnIvemNmbmpoaFpxT3hnYz0ifQ=="
@@ -107,7 +107,7 @@
         "content_type": "application/x-www-form-urlencoded",
         "token_field_name": "access_token"
       },
-      "base_service_url": "https://www.cnxrwebservices.com/APITools/V1/",
+      "base_service_url": "https://drxwebservices.com/APITools/v1/",
       "required_entitlement": "connecture_integration_jsa"
     }
   ]
