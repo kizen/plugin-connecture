@@ -270,7 +270,7 @@ async function processPharmacies(pharmaciesField, toolsServiceName, contactId, c
   const pharmacyData = await Promise.allSettled(
     pharmacyIds.map((pharmacy) =>
       this.get(this.getServiceUrl(toolsServiceName, `/quoting-api/Pharmacies/${pharmacy.name}?PharmacyIDType=2`), {
-        headers: { ClientID: clientId },
+        headers: { "X-Proxy-ClientID": clientId },
       }),
     ),
   );
@@ -308,7 +308,7 @@ async function processProviders(providersField, toolsServiceName, contactId, cli
 
     const connectureResponse = await this.get(
       this.getServiceUrl(toolsServiceName, `/quoting-api/Providers/GetByNPIs?npis=${npis}`),
-      { headers: { ClientID: clientId } },
+      { headers: { "X-Proxy-ClientID": clientId } },
     );
 
     if (!connectureResponse?.Providers) return [];
@@ -402,7 +402,7 @@ async function getCountyCode(fields, toolsServiceName, clientId) {
   try {
     const countyResponse = await this.get(
       this.getServiceUrl(toolsServiceName, `/quoting-api/Counties/${fields.zipcode.value}`),
-      { headers: { ClientID: clientId } },
+      { headers: { "X-Proxy-ClientID": clientId } },
     );
 
     if (!Array.isArray(countyResponse)) return null;
@@ -440,7 +440,7 @@ async function createSession(pluginConfig, envConfig) {
   const [data, error] = await this.postWithErrors(
     this.getServiceUrl(envConfig.plan_compare_service_name, "/quoting-api/session"),
     [searchSessionPayload],
-    { headers: { ClientID: envConfig.client_id } },
+    { headers: { "X-Proxy-ClientID": envConfig.client_id } },
   );
 
   if (!data || !data[0]) {
@@ -467,7 +467,7 @@ async function searchMembers(fields, sessionId, envConfig) {
           envConfig.plan_compare_service_name,
           `/quoting-api/session/${sessionId}/MemberSearch/GetMemberEnrollments?hicn=${encodeURIComponent(fields.medicare_number.value)}`,
         ),
-        { headers: { ClientID: envConfig.client_id } },
+        { headers: { "X-Proxy-ClientID": envConfig.client_id } },
       );
 
       if (Array.isArray(data) && data.length > 0) {
@@ -687,9 +687,11 @@ async function launchConnecture(sessionData, fields, relatedData, envConfig, plu
     ...(drugs.length > 0 && { dosages: drugs }),
   };
 
-  await this.post(this.getServiceUrl(envConfig.plan_compare_service_name, "/quoting-api/session"), [
-    updateSessionPayload,
-  ], { headers: { ClientID: envConfig.client_id } });
+  await this.post(
+    this.getServiceUrl(envConfig.plan_compare_service_name, "/quoting-api/session"),
+    [updateSessionPayload],
+    { headers: { "X-Proxy-ClientID": envConfig.client_id } },
+  );
 
   this.showToast("Successfully Created Connecture Session", {
     variant: "success",
