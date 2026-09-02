@@ -440,7 +440,6 @@ async function createSession(pluginConfig, envConfig) {
   const [data, error] = await this.postWithErrors(
     this.getServiceUrl(envConfig.plan_compare_service_name, "/quoting-api/session"),
     [searchSessionPayload],
-    { headers: { "X-Proxy-ClientID": envConfig.client_id } },
   );
 
   if (!data || !data[0]) {
@@ -467,7 +466,6 @@ async function searchMembers(fields, sessionId, envConfig) {
           envConfig.plan_compare_service_name,
           `/quoting-api/session/${sessionId}/MemberSearch/GetMemberEnrollments?hicn=${encodeURIComponent(fields.medicare_number.value)}`,
         ),
-        { headers: { "X-Proxy-ClientID": envConfig.client_id } },
       );
 
       if (Array.isArray(data) && data.length > 0) {
@@ -690,7 +688,6 @@ async function launchConnecture(sessionData, fields, relatedData, envConfig, plu
   await this.post(
     this.getServiceUrl(envConfig.plan_compare_service_name, "/quoting-api/session"),
     [updateSessionPayload],
-    { headers: { "X-Proxy-ClientID": envConfig.client_id } },
   );
 
   this.showToast("Successfully Created Connecture Session", {
