@@ -270,7 +270,7 @@ async function processPharmacies(pharmaciesField, toolsServiceName, contactId, c
   const pharmacyData = await Promise.allSettled(
     pharmacyIds.map((pharmacy) =>
       this.get(this.getServiceUrl(toolsServiceName, `/quoting-api/Pharmacies/${pharmacy.name}?PharmacyIDType=2`), {
-        headers: { ClientID: clientId },
+        // headers: { ClientID: clientId },
       }),
     ),
   );
@@ -308,7 +308,7 @@ async function processProviders(providersField, toolsServiceName, contactId, cli
 
     const connectureResponse = await this.get(
       this.getServiceUrl(toolsServiceName, `/quoting-api/Providers/GetByNPIs?npis=${npis}`),
-      { headers: { ClientID: clientId } },
+      // { headers: { ClientID: clientId } },
     );
 
     if (!connectureResponse?.Providers) return [];
@@ -402,7 +402,7 @@ async function getCountyCode(fields, toolsServiceName, clientId) {
   try {
     const countyResponse = await this.get(
       this.getServiceUrl(toolsServiceName, `/quoting-api/Counties/${fields.zipcode.value}`),
-      { headers: { ClientID: clientId } },
+      // { headers: { ClientID: clientId } },
     );
 
     if (!Array.isArray(countyResponse)) return null;
