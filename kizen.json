@@ -1,6 +1,6 @@
 {
   "name": "Connecture",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "published": true,
   "api_name": "connecture",
   "description": "Connecture integration for Agent CRM.",
@@ -61,6 +61,7 @@
         "content_type": "application/x-www-form-urlencoded",
         "token_field_name": "access_token"
       },
+      "custom_headers": { "ClientID": "JSA-Staging" },
       "base_service_url": "https://staging.cnxrwebservices.com/APITools/V1/",
       "required_entitlement": "connecture_integration_jsastaging"
     },
@@ -107,6 +108,7 @@
         "content_type": "application/x-www-form-urlencoded",
         "token_field_name": "access_token"
       },
+      "custom_headers": { "ClientID": "JSA" },
       "base_service_url": "https://www.cnxrwebservices.com/APITools/V1/",
       "required_entitlement": "connecture_integration_jsa"
     }
