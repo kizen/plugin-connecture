@@ -61,7 +61,7 @@
         "content_type": "application/x-www-form-urlencoded",
         "token_field_name": "access_token"
       },
-      "custom_headers": { "ClientID": "JSA" },
+      "custom_headers": { "ClientID": "JSA-Staging" },
       "base_service_url": "https://staging.cnxrwebservices.com/APITools/V1/",
       "required_entitlement": "connecture_integration_jsastaging"
     },
