@@ -171,7 +171,6 @@
         "content_type": "application/x-www-form-urlencoded",
         "token_field_name": "access_token"
       },
-      "custom_headers": { "ClientID": "{{secret.connecture_client_id}}" },
       "base_service_url": "https://www.cnxrwebservices.com/APITools/V1/",
       "required_entitlement": ""
     },
@@ -206,7 +205,6 @@
         "content_type": "application/x-www-form-urlencoded",
         "token_field_name": "access_token"
       },
-      "custom_headers": { "ClientID": "{{secret.connecture_client_id}}" },
       "base_service_url": "https://staging.cnxrwebservices.com/APITools/V1/",
       "required_entitlement": ""
     }
