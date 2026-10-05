@@ -141,11 +141,10 @@
     },
     {
       "auth_type": "basic_auth_token_exchange",
-      "auth_level": "global",
+      "auth_level": "business",
       "display_name": "plancompare",
       "service_name": "plancompare",
       "auth_credentials": {
-        "level": "global",
         "payload": "grant_type=client_credentials",
         "auth_url": "https://auth.drxwebservices.com/v1/auth/token?format=json",
         "password": "{{secret.connecture_password}}",
@@ -154,6 +153,54 @@
         "token_field_name": "access_token"
       },
       "base_service_url": "https://drxwebservices.com/APIPlanCompare/v1/",
+      "required_entitlement": ""
+    },
+    {
+      "auth_type": "basic_auth_token_exchange",
+      "auth_level": "business",
+      "display_name": "tools",
+      "service_name": "tools",
+      "auth_credentials": {
+        "payload": "grant_type=client_credentials",
+        "auth_url": "https://auth.cnxrwebservices.com/v1/auth/token?format=json",
+        "password": "{{secret.connecture_password}}",
+        "username": "{{secret.connecture_username}}",
+        "content_type": "application/x-www-form-urlencoded",
+        "token_field_name": "access_token"
+      },
+      "base_service_url": "https://www.cnxrwebservices.com/APITools/V1/",
+      "required_entitlement": ""
+    },
+    {
+      "auth_type": "basic_auth_token_exchange",
+      "auth_level": "business",
+      "display_name": "plancomparestaging",
+      "service_name": "plancomparestaging",
+      "auth_credentials": {
+        "payload": "grant_type=client_credentials",
+        "auth_url": "https://staging.drxwebservices.com/AuthAlt/v1/auth/token?format=json",
+        "password": "{{secret.connecture_password}}",
+        "username": "{{secret.connecture_username}}",
+        "content_type": "application/x-www-form-urlencoded",
+        "token_field_name": "access_token"
+      },
+      "base_service_url": "https://staging.drxwebservices.com/APIPlanCompareAlt/v1/",
+      "required_entitlement": ""
+    },
+    {
+      "auth_type": "basic_auth_token_exchange",
+      "auth_level": "business",
+      "display_name": "toolsstaging",
+      "service_name": "toolsstaging",
+      "auth_credentials": {
+        "payload": "grant_type=client_credentials",
+        "auth_url": "https://staging-auth.cnxrwebservices.com/v1/auth/token?format=json",
+        "password": "{{secret.connecture_password}}",
+        "username": "{{secret.connecture_username}}",
+        "content_type": "application/x-www-form-urlencoded",
+        "token_field_name": "access_token"
+      },
+      "base_service_url": "https://staging.cnxrwebservices.com/APITools/V1/",
       "required_entitlement": ""
     }
   ]
