@@ -112,14 +112,23 @@ try {
 // Helper Functions
 async function initializeConfig() {
   // Run all API calls in parallel
-  const [pluginConfig, contact, obj] = await Promise.all([
+  let [pluginConfig, contact, obj] = await Promise.all([
     this.get(`/employee/mine/configs/plugins/${this.args.pluginId}`),
     this.currentEntity(),
     this.currentObject(),
   ]);
 
-  if (!pluginConfig?.config?.npn) {
-    throw new Error("Your employee record is not configured with your NPN. Please contact your administrator");
+  let npn = pluginConfig?.config?.npn;
+  if (!npn) {
+    npn = await promptForNpn.call(this);
+    if (!npn) {
+      this.showToast("Your NPN is required to proceed", { variant: "failure" });
+      return null;
+    }
+    // no patch method for employee config, need to copy existing config and add the NPN
+    const updatedConfig = { ...(pluginConfig?.config ?? {}), npn };
+    await this.post(`/employee/mine/configs/plugins/${this.args.pluginId}`, { config: updatedConfig });
+    pluginConfig = { ...pluginConfig, config: updatedConfig };
   }
 
   const business = this.currentBusiness;
@@ -128,6 +137,42 @@ async function initializeConfig() {
   if (!envConfig) return null;
 
   return { pluginConfig, envConfig, contact, obj };
+}
+
+async function promptForNpn() {
+  const result = await this.prompt({
+    title: "Missing NPN",
+    confirmButton: {
+      label: "Save",
+      variant: "standard",
+    },
+    cancelButton: {
+      label: "Cancel",
+      variant: "text",
+    },
+    content: [
+      {
+        type: "description",
+        content: "Please enter your National Producer Number (NPN). This is required to start quoting in Connecture.",
+        widthPercent: 100,
+      },
+      {
+        type: "spacer",
+        height: 10,
+        widthPercent: 100,
+      },
+      {
+        type: "text",
+        label: "Enter your NPN",
+        placeholder: "NPN",
+        id: "npn",
+        widthPercent: 100,
+      },
+    ],
+  });
+
+  if (result.canceled) return null;
+  return result.values.npn?.trim() || null;
 }
 
 function getGenericEnvConfig() {
