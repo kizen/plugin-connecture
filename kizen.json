@@ -138,6 +138,23 @@
       "custom_headers": { "ClientID": "JSA" },
       "base_service_url": "https://www.cnxrwebservices.com/APITools/V1/",
       "required_entitlement": "connecture_integration_jsa"
+    },
+    {
+      "auth_type": "basic_auth_token_exchange",
+      "auth_level": "global",
+      "display_name": "plancompare",
+      "service_name": "plancompare",
+      "auth_credentials": {
+        "level": "global",
+        "payload": "grant_type=client_credentials",
+        "auth_url": "https://auth.drxwebservices.com/v1/auth/token?format=json",
+        "password": "{{secret.connecture_password}}",
+        "username": "{{secret.connecture_username}}",
+        "content_type": "application/x-www-form-urlencoded",
+        "token_field_name": "access_token"
+      },
+      "base_service_url": "https://drxwebservices.com/APIPlanCompare/v1/",
+      "required_entitlement": ""
     }
   ]
 }
