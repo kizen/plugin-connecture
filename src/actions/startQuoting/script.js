@@ -24,22 +24,41 @@ const CONFIG = {
       npi: "npi_ce9d20",
     },
   },
+  // Keyed by business entitlement. Environments with an sso_url launch through SAML with
+  // launch_url as the RelayState; the rest open launch_url directly with the SSOValue.
   ENVIRONMENTS: {
     connecture_integration_jsastaging: {
       client_id: "JSA",
       plan_compare_service_name: "plancomparejsastaging",
       tools_service_name: "toolsjsastaging",
       sso_url: "https://alg.oktapreview.com/app/alg_connecture2024_1/exka2wr7dsAauvHfE1d7/sso/saml",
-      relay_state_url: "https://jsa7.staging.destinationrx.com/PC/Agent/Profile/EditProfile",
+      launch_url: "https://jsa7.staging.destinationrx.com/PC/Agent/Profile/EditProfile",
     },
     connecture_integration_jsa: {
       client_id: "JSA",
       plan_compare_service_name: "plancomparejsa",
       tools_service_name: "toolsjsa",
       sso_url: "https://agentsso.okta.com/app/agentsso_jsaconnecturedrx2024_1/exk5ephj96v5antsj4h7/sso/saml",
-      relay_state_url: "https://jsa7.destinationrx.com/PC/Agent/Profile/EditProfile",
+      launch_url: "https://jsa7.destinationrx.com/PC/Agent/Profile/EditProfile",
     },
   },
+  // Fallback for businesses without one of the entitlements above, keyed by the setup assistant's
+  // Connecture Environment. Credentials come from integration secrets resolved by the proxy, and
+  // launch_url is built from the configured subdomain.
+  GENERIC_ENVIRONMENTS: {
+    production: {
+      plan_compare_service_name: "plancompare",
+      tools_service_name: "tools",
+      launch_domain: "destinationrx.com",
+    },
+    staging: {
+      plan_compare_service_name: "plancomparestaging",
+      tools_service_name: "toolsstaging",
+      launch_domain: "staging.destinationrx.com",
+    },
+  },
+  GENERIC_LAUNCH_PATH: "/PC/Agent/Profile/EditProfile",
+  GENERIC_REQUIRED_SECRETS: ["connecture_username", "connecture_password", "connecture_client_id"],
   REQUIRED_ADDRESS_FIELDS: ["street_address_1", "city", "zipcode", "state"],
   SPECIAL_FIELDS: ["drugs", "providers", "pharmacies"],
 };
@@ -49,7 +68,12 @@ this.setIndicator("button");
 
 try {
   // Initialize configuration and validate setup
-  const { pluginConfig, envConfig, contact, obj } = await initializeConfig.call(this);
+  const config = await initializeConfig.call(this);
+  if (!config) {
+    this.setIndicator("none");
+    return;
+  }
+  const { pluginConfig, envConfig, contact, obj } = config;
 
   // Process contact fields
   const fields = await processContactFields.call(this, contact, obj);
@@ -99,14 +123,32 @@ async function initializeConfig() {
   }
 
   const business = this.currentBusiness;
-  const envKey = Object.keys(business?.entitlements).find((key) => CONFIG.ENVIRONMENTS[key]);
-  const envConfig = CONFIG.ENVIRONMENTS[envKey];
-
-  if (!envConfig) {
-    throw new Error("Your business is not configured to connect to Connecture.");
-  }
+  const envKey = Object.keys(business?.entitlements ?? {}).find((key) => CONFIG.ENVIRONMENTS[key]);
+  const envConfig = envKey ? CONFIG.ENVIRONMENTS[envKey] : getGenericEnvConfig.call(this);
+  if (!envConfig) return null;
 
   return { pluginConfig, envConfig, contact, obj };
+}
+
+function getGenericEnvConfig() {
+  const subdomain = this.config?.connectureSubdomain?.trim();
+  if (!subdomain) {
+    this.showToast(
+      "Your business is not configured to connect to Connecture. Please ask your administrator to set the Connecture Subdomain in the plugin settings.",
+      { variant: "failure", autohide: false },
+    );
+    return null;
+  }
+
+  const envName = this.config?.connectureEnvironment?.value ?? "production";
+  const { launch_domain, ...envConfig } =
+    CONFIG.GENERIC_ENVIRONMENTS[envName] ?? CONFIG.GENERIC_ENVIRONMENTS.production;
+
+  return {
+    ...envConfig,
+    launch_url: `https://${subdomain}.${launch_domain}${CONFIG.GENERIC_LAUNCH_PATH}`,
+    required_secrets: CONFIG.GENERIC_REQUIRED_SECRETS,
+  };
 }
 
 async function processContactFields(contact, obj) {
@@ -442,12 +484,27 @@ async function createSession(pluginConfig, envConfig) {
     [searchSessionPayload],
   );
 
-  if (!data || !data[0]) {
-    throw new Error("Unable to create session");
+  // Secrets can't be read from the browser, so a missing one only shows up as a proxy failure:
+  // 400 for an unresolved {{secret.KEY}}, 503 when the token exchange is rejected.
+  if (
+    error &&
+    envConfig.required_secrets &&
+    error.upstreamStatus === undefined &&
+    [400, 503].includes(error.proxyStatus)
+  ) {
+    this.showToast(
+      `Connecture credentials are missing or invalid. Please ask your administrator to set the ${envConfig.required_secrets.join(", ")} integration secrets for this plugin.`,
+      { variant: "failure", autohide: false },
+    );
+    return null;
   }
 
-  if (error) {
-    throw new Error("Unable to create session" + (error.message ? ` : ${error.message}` : ""));
+  if (error || !data?.[0]) {
+    this.showToast("Unable to create session" + (error?.message ? ` : ${error.message}` : ""), {
+      variant: "failure",
+      autohide: false,
+    });
+    return null;
   }
 
   return {
@@ -553,8 +610,10 @@ async function handleMemberSelection(memberMatches, relatedSessionNames, current
 }
 
 async function handleSessionManagement(fields, contact, pluginConfig, envConfig, relatedSessionNames) {
-  // Create session
-  const { sessionId, ssoValue: initialSsoValue } = await createSession.call(this, pluginConfig, envConfig);
+  // Create session - a failure has already been toasted, so exit like a cancel
+  const session = await createSession.call(this, pluginConfig, envConfig);
+  if (!session) return null;
+  const { sessionId, ssoValue: initialSsoValue } = session;
 
   // Search for existing members and immediately show selection (depends on sessionId)
   const memberResults = await searchMembers.call(this, fields, sessionId, envConfig);
@@ -693,10 +752,12 @@ async function launchConnecture(sessionData, fields, relatedData, envConfig, plu
     variant: "success",
   });
 
-  // Launch Connecture
-  const dest = `${envConfig.sso_url}?SSOValue=${encodeURIComponent(
-    ssoValue,
-  )}&RelayState=${encodeURIComponent(envConfig.relay_state_url)}`;
+  // Launch Connecture - via SAML when the environment has an sso_url, directly with the SSOValue otherwise
+  const dest = envConfig.sso_url
+    ? `${envConfig.sso_url}?SSOValue=${encodeURIComponent(ssoValue)}&RelayState=${encodeURIComponent(
+        envConfig.launch_url,
+      )}`
+    : `${envConfig.launch_url}?SSOValue=${encodeURIComponent(ssoValue)}`;
 
   this.openWindow(dest);
   this.setIndicator("none");

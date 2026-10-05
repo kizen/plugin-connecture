@@ -1,6 +1,6 @@
 {
   "name": "Connecture",
-  "version": "1.2.5",
+  "version": "1.3.0",
   "published": true,
   "api_name": "connecture",
   "description": "Connecture integration for Agent CRM.",
@@ -11,7 +11,35 @@
   "engine": "1.0.0",
   "release_notes_directory": "releaseNotes/",
   "config_template": {},
-  "base_config": {},
+  "base_config": {
+    "secrets": ["connecture_username", "connecture_password", "connecture_client_id"]
+  },
+  "setup_assistant": {
+    "fields": [
+      {
+        "type": "description",
+        "key": "generic_intro",
+        "content": "Only needed for businesses without an FMO-managed account. Those businesses connect with the connecture_username, connecture_password, and connecture_client_id integration secrets and launch Connecture at the subdomain below."
+      },
+      {
+        "type": "select",
+        "label": "Connecture Environment",
+        "key": "connectureEnvironment",
+        "required": false,
+        "options": [
+          { "label": "Production", "value": "production" },
+          { "label": "Staging", "value": "staging" }
+        ]
+      },
+      {
+        "type": "text",
+        "label": "Connecture Subdomain",
+        "key": "connectureSubdomain",
+        "required": false,
+        "validation_pattern": "^[a-zA-Z0-9-]+$"
+      }
+    ]
+  },
   "developer_business_id": {
     "integration": "725f64e5-4124-46cc-92c4-d16049add76e",
     "staging": "eedc1c3a-281d-4a26-88ea-a684c85fa612",
@@ -111,6 +139,76 @@
       "custom_headers": { "ClientID": "JSA" },
       "base_service_url": "https://www.cnxrwebservices.com/APITools/V1/",
       "required_entitlement": "connecture_integration_jsa"
+    },
+    {
+      "auth_type": "basic_auth_token_exchange",
+      "auth_level": "global",
+      "display_name": "plancompare",
+      "service_name": "plancompare",
+      "auth_credentials": {
+        "level": "global",
+        "payload": "grant_type=client_credentials",
+        "auth_url": "https://auth.drxwebservices.com/v1/auth/token?format=json",
+        "password": "{{secret.connecture_password}}",
+        "username": "{{secret.connecture_username}}",
+        "content_type": "application/x-www-form-urlencoded",
+        "token_field_name": "access_token"
+      },
+      "base_service_url": "https://drxwebservices.com/APIPlanCompare/v1/",
+      "required_entitlement": ""
+    },
+    {
+      "auth_type": "basic_auth_token_exchange",
+      "auth_level": "global",
+      "display_name": "tools",
+      "service_name": "tools",
+      "auth_credentials": {
+        "level": "global",
+        "payload": "grant_type=client_credentials",
+        "auth_url": "https://auth.cnxrwebservices.com/v1/auth/token?format=json",
+        "password": "{{secret.connecture_password}}",
+        "username": "{{secret.connecture_username}}",
+        "content_type": "application/x-www-form-urlencoded",
+        "token_field_name": "access_token"
+      },
+      "custom_headers": { "ClientID": "{{secret.connecture_client_id}}" },
+      "base_service_url": "https://www.cnxrwebservices.com/APITools/V1/",
+      "required_entitlement": ""
+    },
+    {
+      "auth_type": "basic_auth_token_exchange",
+      "auth_level": "global",
+      "display_name": "plancomparestaging",
+      "service_name": "plancomparestaging",
+      "auth_credentials": {
+        "level": "global",
+        "payload": "grant_type=client_credentials",
+        "auth_url": "https://staging.drxwebservices.com/AuthAlt/v1/auth/token?format=json",
+        "password": "{{secret.connecture_password}}",
+        "username": "{{secret.connecture_username}}",
+        "content_type": "application/x-www-form-urlencoded",
+        "token_field_name": "access_token"
+      },
+      "base_service_url": "https://staging.drxwebservices.com/APIPlanCompareAlt/v1/",
+      "required_entitlement": ""
+    },
+    {
+      "auth_type": "basic_auth_token_exchange",
+      "auth_level": "global",
+      "display_name": "toolsstaging",
+      "service_name": "toolsstaging",
+      "auth_credentials": {
+        "level": "global",
+        "payload": "grant_type=client_credentials",
+        "auth_url": "https://staging-auth.cnxrwebservices.com/v1/auth/token?format=json",
+        "password": "{{secret.connecture_password}}",
+        "username": "{{secret.connecture_username}}",
+        "content_type": "application/x-www-form-urlencoded",
+        "token_field_name": "access_token"
+      },
+      "custom_headers": { "ClientID": "{{secret.connecture_client_id}}" },
+      "base_service_url": "https://staging.cnxrwebservices.com/APITools/V1/",
+      "required_entitlement": ""
     }
   ]
 }
