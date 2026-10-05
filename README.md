@@ -32,6 +32,14 @@ The plugin supports two Connecture environments, selected automatically based on
 
 Each environment's service credentials (auth URL, client credentials, base service URL) live in `kizen.json` under `services`, keyed by `required_entitlement`, and are meant to be provisioned per-deployment.
 
+### Generic connection
+
+Businesses with no Connecture entitlement fall back to the generic services. They need:
+
+- Integration secrets `connecture_username`, `connecture_password`, and `connecture_client_id`. The proxy resolves them into the token exchange and the `ClientID` header, so they never reach the browser. If any is missing, starting a quote fails with a message naming them.
+- The **Connecture Environment** setup assistant field: Production (the default) uses `plancompare`/`tools`, and Staging uses `plancomparestaging`/`toolsstaging`.
+- The **Connecture Subdomain** setup assistant field. This value is not a secret because the browser has to read it to build the launch URL. Connecture opens at `https://{subdomain}.destinationrx.com/PC/Agent/Profile/EditProfile?SSOValue=...` (`{subdomain}.staging.destinationrx.com` on staging), without SAML.
+
 ## Requirements
 
 - The agent's Kizen employee record must have an NPN configured under the plugin config.
