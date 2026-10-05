@@ -35,8 +35,7 @@
         "type": "text",
         "label": "Connecture Subdomain",
         "key": "connectureSubdomain",
-        "required": false,
-        "validation_pattern": "^[a-zA-Z0-9-]+$"
+        "required": false
       }
     ]
   },
