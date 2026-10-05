@@ -15,6 +15,7 @@
     "secrets": ["connecture_username", "connecture_password", "connecture_client_id"]
   },
   "setup_assistant": {
+    "actions": ["start_quoting_in_connecture"],
     "fields": [
       {
         "type": "description",
