@@ -58,7 +58,7 @@ try {
   const validationResult = await validateRequiredData.call(this, fields);
   if (!validationResult) {
     this.setIndicator("none");
-    throw new Error("Validation failed");
+    return;
   }
 
   // Extract related session names early (no API dependency)
