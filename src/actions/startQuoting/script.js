@@ -82,7 +82,7 @@ try {
   const validationResult = await validateRequiredData.call(this, fields);
   if (!validationResult) {
     this.setIndicator("none");
-    throw new Error("Validation failed");
+    return;
   }
 
   // Extract related session names early (no API dependency)
@@ -253,7 +253,10 @@ async function validateRequiredData(fields) {
       ],
     });
 
-    if (result.canceled) return false;
+    if (result.canceled) {
+      this.showToast("Medicare number is required to proceed.", { variant: "failure" });
+      return false;
+    }
   }
 
   // Check for required address fields
