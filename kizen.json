@@ -1,9 +1,10 @@
 {
   "name": "Connecture",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "published": true,
   "api_name": "connecture",
   "description": "Connecture integration for Agent CRM.",
+  "categories": ["insurance"],
   "external_link": "https://www.connecture.com/agents/",
   "release_branches": ["main"],
   "release_environments": ["dev", "fmo"],
