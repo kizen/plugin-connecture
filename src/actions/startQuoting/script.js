@@ -108,6 +108,7 @@ try {
   this.setIndicator("none");
   this.showToast(error.message || "An unexpected error occurred", {
     variant: "failure",
+    autohide: false,
   });
 }
 
@@ -124,7 +125,7 @@ async function initializeConfig() {
   if (!npn) {
     npn = await promptForNpn.call(this);
     if (!npn) {
-      this.showToast("Your NPN is required to proceed", { variant: "failure" });
+      this.showToast("Your NPN is required to proceed", { variant: "failure", autohide: false });
       return null;
     }
     // no patch method for employee config, need to copy existing config and add the NPN
@@ -257,7 +258,7 @@ async function validateRequiredData(fields) {
     });
 
     if (result.canceled) {
-      this.showToast("Medicare number is required to proceed.", { variant: "failure" });
+      this.showToast("Medicare number is required to proceed.", { variant: "failure", autohide: false });
       return false;
     }
   }
@@ -267,6 +268,7 @@ async function validateRequiredData(fields) {
   if (missingAddressFields.length > 0) {
     this.showToast(`Missing required address fields: ${missingAddressFields.join(", ")}`, {
       variant: "failure",
+      autohide: false,
     });
     return false;
   }
