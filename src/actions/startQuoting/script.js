@@ -24,22 +24,43 @@ const CONFIG = {
       npi: "npi_ce9d20",
     },
   },
+  // Keyed by business entitlement. Environments with an sso_url launch through SAML with
+  // launch_url as the RelayState; the rest open launch_url directly with the SSOValue.
   ENVIRONMENTS: {
     connecture_integration_jsastaging: {
       client_id: "JSA",
       plan_compare_service_name: "plancomparejsastaging",
       tools_service_name: "toolsjsastaging",
       sso_url: "https://alg.oktapreview.com/app/alg_connecture2024_1/exka2wr7dsAauvHfE1d7/sso/saml",
-      relay_state_url: "https://jsa7.staging.destinationrx.com/PC/Agent/Profile/EditProfile",
+      launch_url: "https://jsa7.staging.destinationrx.com/PC/Agent/Profile/EditProfile",
     },
     connecture_integration_jsa: {
       client_id: "JSA",
       plan_compare_service_name: "plancomparejsa",
       tools_service_name: "toolsjsa",
       sso_url: "https://agentsso.okta.com/app/agentsso_jsaconnecturedrx2024_1/exk5ephj96v5antsj4h7/sso/saml",
-      relay_state_url: "https://jsa7.destinationrx.com/PC/Agent/Profile/EditProfile",
+      launch_url: "https://jsa7.destinationrx.com/PC/Agent/Profile/EditProfile",
     },
   },
+  // Fallback for businesses without one of the entitlements above, keyed by the setup assistant's
+  // Connecture Environment. Credentials come from integration secrets resolved by the proxy, and
+  // launch_url is built from the configured subdomain.
+  GENERIC_ENVIRONMENTS: {
+    production: {
+      plan_compare_service_name: "plancompare",
+      tools_service_name: "tools",
+      launch_domain: "destinationrx.com",
+    },
+    staging: {
+      plan_compare_service_name: "plancomparestaging",
+      tools_service_name: "toolsstaging",
+      launch_domain: "staging.destinationrx.com",
+    },
+  },
+  GENERIC_LAUNCH_PATH: "/PC/Agent/Profile/EditProfile",
+  GENERIC_REQUIRED_SECRETS: ["api_client_id", "api_client_secret", "account_code"],
+  MISSING_CLIENT_ID_MESSAGE:
+    "Pharmacies and providers were not sent to Connecture because the account_code integration secret is missing. Please ask your administrator to set it.",
   REQUIRED_ADDRESS_FIELDS: ["street_address_1", "city", "zipcode", "state"],
   SPECIAL_FIELDS: ["drugs", "providers", "pharmacies"],
 };
@@ -49,7 +70,12 @@ this.setIndicator("button");
 
 try {
   // Initialize configuration and validate setup
-  const { pluginConfig, envConfig, contact, obj } = await initializeConfig.call(this);
+  const config = await initializeConfig.call(this);
+  if (!config) {
+    this.setIndicator("none");
+    return;
+  }
+  const { pluginConfig, envConfig, contact, obj } = config;
 
   // Process contact fields
   const fields = await processContactFields.call(this, contact, obj);
@@ -58,16 +84,17 @@ try {
   const validationResult = await validateRequiredData.call(this, fields);
   if (!validationResult) {
     this.setIndicator("none");
-    throw new Error("Validation failed");
+    return;
   }
 
   // Extract related session names early (no API dependency)
   const relatedSessionNames = getRelatedSessionNames(fields);
 
-  // Run session management and related records processing in parallel
-  const [sessionData, { drugs, providers, pharmacies }] = await Promise.all([
+  // Run session management, related records and the county lookup in parallel
+  const [sessionData, { drugs, providers, pharmacies }, profile] = await Promise.all([
     handleSessionManagement.call(this, fields, contact, pluginConfig, envConfig, relatedSessionNames),
     processRelatedRecords.call(this, fields, obj, envConfig.tools_service_name, contact.id, envConfig.client_id),
+    buildProfileData.call(this, fields, envConfig.tools_service_name, envConfig.client_id),
   ]);
 
   // If user cancelled, exit gracefully
@@ -77,36 +104,101 @@ try {
   }
 
   // Launch Connecture
-  await launchConnecture.call(this, sessionData, fields, { drugs, providers, pharmacies }, envConfig, pluginConfig);
+  await launchConnecture.call(this, sessionData, profile, { drugs, providers, pharmacies }, envConfig, pluginConfig);
 } catch (error) {
   this.setIndicator("none");
   this.showToast(error.message || "An unexpected error occurred", {
     variant: "failure",
+    autohide: false,
   });
 }
 
 // Helper Functions
 async function initializeConfig() {
   // Run all API calls in parallel
-  const [pluginConfig, contact, obj] = await Promise.all([
+  let [pluginConfig, contact, obj] = await Promise.all([
     this.get(`/employee/mine/configs/plugins/${this.args.pluginId}`),
     this.currentEntity(),
     this.currentObject(),
   ]);
 
-  if (!pluginConfig?.config?.npn) {
-    throw new Error("Your employee record is not configured with your NPN. Please contact your administrator");
+  let npn = pluginConfig?.config?.npn;
+  if (!npn) {
+    npn = await promptForNpn.call(this);
+    if (!npn) {
+      this.showToast("Your NPN is required to proceed", { variant: "failure", autohide: false });
+      return null;
+    }
+    // no patch method for employee config, need to copy existing config and add the NPN
+    const updatedConfig = { ...(pluginConfig?.config ?? {}), npn };
+    await this.post(`/employee/mine/configs/plugins/${this.args.pluginId}`, { config: updatedConfig });
+    pluginConfig = { ...pluginConfig, config: updatedConfig };
   }
 
   const business = this.currentBusiness;
-  const envKey = Object.keys(business?.entitlements).find((key) => CONFIG.ENVIRONMENTS[key]);
-  const envConfig = CONFIG.ENVIRONMENTS[envKey];
-
-  if (!envConfig) {
-    throw new Error("Your business is not configured to connect to Connecture.");
-  }
+  const envKey = Object.keys(business?.entitlements ?? {}).find((key) => CONFIG.ENVIRONMENTS[key]);
+  const envConfig = envKey ? CONFIG.ENVIRONMENTS[envKey] : getGenericEnvConfig.call(this);
+  if (!envConfig) return null;
 
   return { pluginConfig, envConfig, contact, obj };
+}
+
+async function promptForNpn() {
+  const result = await this.prompt({
+    title: "Missing NPN",
+    confirmButton: {
+      label: "Save",
+      variant: "standard",
+    },
+    cancelButton: {
+      label: "Cancel",
+      variant: "text",
+    },
+    content: [
+      {
+        type: "description",
+        content: "Please enter your National Producer Number (NPN). This is required to start quoting in Connecture.",
+        widthPercent: 100,
+      },
+      {
+        type: "spacer",
+        height: 10,
+        widthPercent: 100,
+      },
+      {
+        type: "text",
+        label: "Enter your NPN",
+        placeholder: "NPN",
+        id: "npn",
+        widthPercent: 100,
+      },
+    ],
+  });
+
+  if (result.canceled) return null;
+  return result.values.npn?.trim() || null;
+}
+
+function getGenericEnvConfig() {
+  const subdomain = this.config?.connectureSubdomain?.trim();
+  // Letters, digits and hyphens only, so the launch URL can't point outside destinationrx.com
+  if (!subdomain || !/^[a-z0-9-]+$/i.test(subdomain)) {
+    this.showToast(
+      "Your business is not configured to connect to Connecture. Please ask your administrator to set a valid Connecture Subdomain in the plugin settings.",
+      { variant: "failure", autohide: false },
+    );
+    return null;
+  }
+
+  const envName = this.config?.connectureEnvironment?.value ?? "production";
+  const { launch_domain, ...envConfig } =
+    CONFIG.GENERIC_ENVIRONMENTS[envName] ?? CONFIG.GENERIC_ENVIRONMENTS.production;
+
+  return {
+    ...envConfig,
+    launch_url: `https://${subdomain}.${launch_domain}${CONFIG.GENERIC_LAUNCH_PATH}`,
+    required_secrets: CONFIG.GENERIC_REQUIRED_SECRETS,
+  };
 }
 
 async function processContactFields(contact, obj) {
@@ -166,7 +258,10 @@ async function validateRequiredData(fields) {
       ],
     });
 
-    if (result.canceled) return false;
+    if (result.canceled) {
+      this.showToast("Medicare number is required to proceed.", { variant: "failure", autohide: false });
+      return false;
+    }
   }
 
   // Check for required address fields
@@ -174,6 +269,7 @@ async function validateRequiredData(fields) {
   if (missingAddressFields.length > 0) {
     this.showToast(`Missing required address fields: ${missingAddressFields.join(", ")}`, {
       variant: "failure",
+      autohide: false,
     });
     return false;
   }
@@ -212,6 +308,14 @@ async function processRelatedRecords(fields, obj, toolsServiceName, contactId, c
   }
 
   const promiseResults = await Promise.allSettled(promises);
+
+  if (
+    promiseResults.some(
+      (result) => result.status === "rejected" && result.reason?.message === CONFIG.MISSING_CLIENT_ID_MESSAGE,
+    )
+  ) {
+    this.showToast(CONFIG.MISSING_CLIENT_ID_MESSAGE, { variant: "failure", autohide: false });
+  }
 
   // Handle results
   let resultIndex = 0;
@@ -267,15 +371,20 @@ async function processPharmacies(pharmaciesField, toolsServiceName, contactId, c
   const pharmacyIds = await processForField.call(this, pharmaciesField, contactId);
   if (pharmacyIds.length === 0) return [];
 
-  const pharmacyData = await Promise.allSettled(
+  const pharmacyData = await Promise.all(
     pharmacyIds.map((pharmacy) =>
-      this.get(this.getServiceUrl(toolsServiceName, `/quoting-api/Pharmacies/${pharmacy.name}?PharmacyIDType=2`), {
-        // headers: { ClientID: clientId },
-      }),
+      this.getWithErrors(
+        this.getServiceUrl(toolsServiceName, `/quoting-api/Pharmacies/${pharmacy.name}?PharmacyIDType=2`),
+      ),
     ),
   );
 
-  return pharmacyData.filter((result) => result.status === "fulfilled" && result.value).map((result) => result.value);
+  // The proxy rejects the call with a 400 when the ClientID header's secret is empty
+  if (pharmacyData.some(([, error]) => error?.proxyStatus === 400 && error.upstreamStatus === undefined)) {
+    throw new Error(CONFIG.MISSING_CLIENT_ID_MESSAGE);
+  }
+
+  return pharmacyData.filter(([data]) => data).map(([data]) => data);
 }
 
 async function processProviders(providersField, toolsServiceName, contactId, clientId) {
@@ -299,47 +408,45 @@ async function processProviders(providersField, toolsServiceName, contactId, cli
 
   if (validProviders.length === 0) return [];
 
-  try {
-    const npis = validProviders
-      .map((p) => encodeURIComponent(p.name))
-      .filter(Boolean)
-      .join(",");
-    if (!npis) return [];
+  const npis = validProviders
+    .map((p) => encodeURIComponent(p.name))
+    .filter(Boolean)
+    .join(",");
+  if (!npis) return [];
 
-    const connectureResponse = await this.get(
-      this.getServiceUrl(toolsServiceName, `/quoting-api/Providers/GetByNPIs?npis=${npis}`),
-      // { headers: { ClientID: clientId } },
-    );
+  const [connectureResponse, error] = await this.getWithErrors(
+    this.getServiceUrl(toolsServiceName, `/quoting-api/Providers/GetByNPIs?npis=${npis}`),
+  );
 
-    if (!connectureResponse?.Providers) return [];
-
-    const providerMap = validProviders.reduce((acc, record) => {
-      if (record.name) acc[record.name] = record;
-      return acc;
-    }, {});
-
-    return connectureResponse.Providers.map((provider) => {
-      const record = providerMap[provider.NPI];
-      const providerZip = record?.providerFieldValues?.zip;
-
-      const selectedAddress =
-        provider.Addresses?.find((addr) => addr.ZipCode === providerZip) ?? provider.Addresses?.[0];
-
-      return selectedAddress
-        ? {
-            ProviderID: provider.Id,
-            isPrimary: provider.IsPrimary,
-            isVBC: provider.IsVBC,
-            isNewPatient: provider.IsNewPatient,
-            vbcOrganizationName: provider.VBCOrganizationName,
-            addressId: selectedAddress.Id,
-          }
-        : null;
-    }).filter(Boolean);
-  } catch (error) {
-    // Error already logged, return empty array
-    return [];
+  // The proxy rejects the call with a 400 when the ClientID header's secret is empty
+  if (error?.proxyStatus === 400 && error.upstreamStatus === undefined) {
+    throw new Error(CONFIG.MISSING_CLIENT_ID_MESSAGE);
   }
+
+  if (!connectureResponse?.Providers) return [];
+
+  const providerMap = validProviders.reduce((acc, record) => {
+    if (record.name) acc[record.name] = record;
+    return acc;
+  }, {});
+
+  return connectureResponse.Providers.map((provider) => {
+    const record = providerMap[provider.NPI];
+    const providerZip = record?.providerFieldValues?.zip;
+
+    const selectedAddress = provider.Addresses?.find((addr) => addr.ZipCode === providerZip) ?? provider.Addresses?.[0];
+
+    return selectedAddress
+      ? {
+          ProviderID: provider.Id,
+          isPrimary: provider.IsPrimary,
+          isVBC: provider.IsVBC,
+          isNewPatient: provider.IsNewPatient,
+          vbcOrganizationName: provider.VBCOrganizationName,
+          addressId: selectedAddress.Id,
+        }
+      : null;
+  }).filter(Boolean);
 }
 
 async function getDrugData(drugId) {
@@ -442,12 +549,30 @@ async function createSession(pluginConfig, envConfig) {
     [searchSessionPayload],
   );
 
-  if (!data || !data[0]) {
-    throw new Error("Unable to create session");
+  // Secrets can't be read from the browser, so a missing one only shows up as a proxy failure:
+  // 400 for an unresolved {{secret.KEY}}, 503 when the token exchange is rejected.
+  if (error && envConfig.required_secrets && error.upstreamStatus === undefined && error.proxyStatus === 400) {
+    this.showToast(
+      `Connecture credentials are missing. Please ask your administrator to set the ${envConfig.required_secrets.join(", ")} integration secrets for this plugin.`,
+      { variant: "failure", autohide: false },
+    );
+    return null;
   }
 
-  if (error) {
-    throw new Error("Unable to create session" + (error.message ? ` : ${error.message}` : ""));
+  if (error && envConfig.required_secrets && error.upstreamStatus === undefined && error.proxyStatus === 503) {
+    this.showToast(
+      "Connecture rejected the api_client_id and api_client_secret integration secrets. Please ask your administrator to confirm they are Connecture API credentials for the Connecture Environment selected in the plugin settings.",
+      { variant: "failure", autohide: false },
+    );
+    return null;
+  }
+
+  if (error || !data?.[0]) {
+    this.showToast("Unable to create session" + (error?.message ? ` : ${error.message}` : ""), {
+      variant: "failure",
+      autohide: false,
+    });
+    return null;
   }
 
   return {
@@ -553,8 +678,10 @@ async function handleMemberSelection(memberMatches, relatedSessionNames, current
 }
 
 async function handleSessionManagement(fields, contact, pluginConfig, envConfig, relatedSessionNames) {
-  // Create session
-  const { sessionId, ssoValue: initialSsoValue } = await createSession.call(this, pluginConfig, envConfig);
+  // Create session - a failure has already been toasted, so exit like a cancel
+  const session = await createSession.call(this, pluginConfig, envConfig);
+  if (!session) return null;
+  const { sessionId, ssoValue: initialSsoValue } = session;
 
   // Search for existing members and immediately show selection (depends on sessionId)
   const memberResults = await searchMembers.call(this, fields, sessionId, envConfig);
@@ -659,13 +786,8 @@ async function manageSavedSessionRecord(ssoValue, contact) {
   }
 }
 
-async function launchConnecture(sessionData, fields, relatedData, envConfig, pluginConfig) {
-  const { profileData, memberAddressData } = await buildProfileData.call(
-    this,
-    fields,
-    envConfig.tools_service_name,
-    envConfig.client_id,
-  );
+async function launchConnecture(sessionData, profile, relatedData, envConfig, pluginConfig) {
+  const { profileData, memberAddressData } = profile;
   const { drugs, providers, pharmacies } = relatedData;
   const { ssoValue } = sessionData;
 
@@ -693,10 +815,12 @@ async function launchConnecture(sessionData, fields, relatedData, envConfig, plu
     variant: "success",
   });
 
-  // Launch Connecture
-  const dest = `${envConfig.sso_url}?SSOValue=${encodeURIComponent(
-    ssoValue,
-  )}&RelayState=${encodeURIComponent(envConfig.relay_state_url)}`;
+  // Launch Connecture - via SAML when the environment has an sso_url, directly with the SSOValue otherwise
+  const dest = envConfig.sso_url
+    ? `${envConfig.sso_url}?SSOValue=${encodeURIComponent(ssoValue)}&RelayState=${encodeURIComponent(
+        envConfig.launch_url,
+      )}`
+    : `${envConfig.launch_url}?SSOValue=${encodeURIComponent(ssoValue)}`;
 
   this.openWindow(dest);
   this.setIndicator("none");
