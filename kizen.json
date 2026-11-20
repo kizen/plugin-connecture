@@ -38,6 +38,8 @@
         "label": "Connecture Subdomain",
         "key": "connectureSubdomain",
         "required": false,
+        "placeholder": "acme",
+        "tooltip": "Your Connecture site subdomain, like acme for acme.destinationrx.com. Letters, numbers, and hyphens only.",
         "validation_pattern": "^[a-zA-Z0-9-]*$"
       }
     ]
