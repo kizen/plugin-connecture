@@ -36,7 +36,7 @@ Each environment's service credentials (auth URL, client credentials, base servi
 
 Businesses with no Connecture entitlement fall back to the generic services. They need:
 
-- Integration secrets `connecture_api_key` and `connecture_api_secret` (Connecture API client credentials, not website logins), and `connecture_account_code` (the business's Connecture code, sent as the `ClientID` header). The proxy resolves them into the token exchange and the header, so they never reach the browser. If any is missing, starting a quote fails with a message naming them.
+- Integration secrets `api_client_id` and `api_client_secret` (Connecture API client credentials, not website logins), and `account_code` (the business's Connecture code, sent as the `ClientID` header). The proxy resolves them into the token exchange and the header, so they never reach the browser. If any is missing, starting a quote fails with a message naming them.
 - The **Connecture Environment** setup assistant field: Production (the default) uses `plancompare`/`tools`, and Staging uses `plancomparestaging`/`toolsstaging`.
 - The **Connecture Subdomain** setup assistant field. This value is not a secret because the browser has to read it to build the launch URL. Connecture opens at `https://{subdomain}.destinationrx.com/PC/Agent/Profile/EditProfile?SSOValue=...` (`{subdomain}.staging.destinationrx.com` on staging), without SAML.
 
