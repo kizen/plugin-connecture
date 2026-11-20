@@ -21,14 +21,14 @@
       {
         "type": "description",
         "key": "generic_intro",
-        "content": "**Only needed for businesses without an FMO-managed account.**\n\nThese businesses set three integration secrets from Connecture:\n\n- **api_client_id**: the API client ID\n- **api_client_secret**: the API client secret\n- **account_code**: your business code, sent as the ClientID header\n\nConnecture launches at the subdomain below."
+        "content": "**Only needed for businesses without an FMO-managed account.**\n\nYou receive the API client ID, API client secret, and account code from Connecture. They are separate from your Connecture login, which you use to sign in to the Connecture website."
       },
       {
         "type": "select",
         "label": "Connecture Environment",
         "key": "connectureEnvironment",
         "required": false,
-        "tooltip": "Production connects to your live Connecture account. Staging connects to your Connecture test account. The integration secrets must be credentials for the environment you choose.",
+        "tooltip": "Production connects to your live Connecture account. Staging connects to your Connecture test account. The API client ID and secret must be for the environment you choose.",
         "options": [
           { "label": "Production", "value": "production" },
           { "label": "Staging", "value": "staging" }
@@ -42,6 +42,31 @@
         "placeholder": "kizen (for kizen.destinationrx.com)",
         "tooltip": "Letters, numbers, and hyphens only.",
         "validation_pattern": "^[a-zA-Z0-9-]*$"
+      },
+      {
+        "type": "api_key",
+        "label": "API Client ID",
+        "key": "apiClientId",
+        "secret": "api_client_id",
+        "required": false,
+        "placeholder": "Enter API client ID"
+      },
+      {
+        "type": "api_key",
+        "label": "API Client Secret",
+        "key": "apiClientSecret",
+        "secret": "api_client_secret",
+        "required": false,
+        "placeholder": "Enter API client secret"
+      },
+      {
+        "type": "api_key",
+        "label": "Account Code",
+        "key": "accountCode",
+        "secret": "account_code",
+        "required": false,
+        "placeholder": "Enter account code",
+        "tooltip": "The code Connecture uses to identify your account."
       }
     ]
   },
