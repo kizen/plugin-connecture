@@ -28,6 +28,7 @@
         "label": "Connecture Environment",
         "key": "connectureEnvironment",
         "required": false,
+        "tooltip": "Production connects to your live Connecture account. Staging connects to your Connecture test account. The integration secrets must be credentials for the environment you choose.",
         "options": [
           { "label": "Production", "value": "production" },
           { "label": "Staging", "value": "staging" }
