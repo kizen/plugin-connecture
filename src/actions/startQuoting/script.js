@@ -90,10 +90,11 @@ try {
   // Extract related session names early (no API dependency)
   const relatedSessionNames = getRelatedSessionNames(fields);
 
-  // Run session management and related records processing in parallel
-  const [sessionData, { drugs, providers, pharmacies }] = await Promise.all([
+  // Run session management, related records and the county lookup in parallel
+  const [sessionData, { drugs, providers, pharmacies }, profile] = await Promise.all([
     handleSessionManagement.call(this, fields, contact, pluginConfig, envConfig, relatedSessionNames),
     processRelatedRecords.call(this, fields, obj, envConfig.tools_service_name, contact.id, envConfig.client_id),
+    buildProfileData.call(this, fields, envConfig.tools_service_name, envConfig.client_id),
   ]);
 
   // If user cancelled, exit gracefully
@@ -103,7 +104,7 @@ try {
   }
 
   // Launch Connecture
-  await launchConnecture.call(this, sessionData, fields, { drugs, providers, pharmacies }, envConfig, pluginConfig);
+  await launchConnecture.call(this, sessionData, profile, { drugs, providers, pharmacies }, envConfig, pluginConfig);
 } catch (error) {
   this.setIndicator("none");
   this.showToast(error.message || "An unexpected error occurred", {
@@ -785,13 +786,8 @@ async function manageSavedSessionRecord(ssoValue, contact) {
   }
 }
 
-async function launchConnecture(sessionData, fields, relatedData, envConfig, pluginConfig) {
-  const { profileData, memberAddressData } = await buildProfileData.call(
-    this,
-    fields,
-    envConfig.tools_service_name,
-    envConfig.client_id,
-  );
+async function launchConnecture(sessionData, profile, relatedData, envConfig, pluginConfig) {
+  const { profileData, memberAddressData } = profile;
   const { drugs, providers, pharmacies } = relatedData;
   const { ssoValue } = sessionData;
 
