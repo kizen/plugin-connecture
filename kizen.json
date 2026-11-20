@@ -21,7 +21,7 @@
       {
         "type": "description",
         "key": "generic_intro",
-        "content": "Only needed for businesses without an FMO-managed account. Those businesses set three integration secrets from Connecture: connecture_api_key and connecture_api_secret (API client credentials), and connecture_account_code (your business code, sent as the ClientID header). Connecture launches at the subdomain below."
+        "content": "**Only needed for businesses without an FMO-managed account.**\n\nThese businesses set three integration secrets from Connecture:\n\n- **connecture_api_key**: the API client ID\n- **connecture_api_secret**: the API client secret\n- **connecture_account_code**: your business code, sent as the ClientID header\n\nConnecture launches at the subdomain below."
       },
       {
         "type": "select",
