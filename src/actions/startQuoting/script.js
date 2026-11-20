@@ -58,9 +58,9 @@ const CONFIG = {
     },
   },
   GENERIC_LAUNCH_PATH: "/PC/Agent/Profile/EditProfile",
-  GENERIC_REQUIRED_SECRETS: ["connecture_username", "connecture_password", "connecture_client_id"],
+  GENERIC_REQUIRED_SECRETS: ["connecture_api_key", "connecture_api_secret", "connecture_account_code"],
   MISSING_CLIENT_ID_MESSAGE:
-    "Pharmacies and providers were not sent to Connecture because the connecture_client_id integration secret is missing. Please ask your administrator to set it.",
+    "Pharmacies and providers were not sent to Connecture because the connecture_account_code integration secret is missing. Please ask your administrator to set it.",
   REQUIRED_ADDRESS_FIELDS: ["street_address_1", "city", "zipcode", "state"],
   SPECIAL_FIELDS: ["drugs", "providers", "pharmacies"],
 };
@@ -560,7 +560,7 @@ async function createSession(pluginConfig, envConfig) {
 
   if (error && envConfig.required_secrets && error.upstreamStatus === undefined && error.proxyStatus === 503) {
     this.showToast(
-      "Connecture rejected the connecture_username and connecture_password integration secrets. Please ask your administrator to confirm they are Connecture API credentials for the Connecture Environment selected in the plugin settings.",
+      "Connecture rejected the connecture_api_key and connecture_api_secret integration secrets. Please ask your administrator to confirm they are Connecture API credentials for the Connecture Environment selected in the plugin settings.",
       { variant: "failure", autohide: false },
     );
     return null;

@@ -13,7 +13,7 @@
   "release_notes_directory": "releaseNotes/",
   "config_template": {},
   "base_config": {
-    "secrets": ["connecture_username", "connecture_password", "connecture_client_id"]
+    "secrets": ["connecture_api_key", "connecture_api_secret", "connecture_account_code"]
   },
   "setup_assistant": {
     "actions": ["start_quoting_in_connecture"],
@@ -21,7 +21,7 @@
       {
         "type": "description",
         "key": "generic_intro",
-        "content": "Only needed for businesses without an FMO-managed account. Those businesses connect with the connecture_username, connecture_password, and connecture_client_id integration secrets and launch Connecture at the subdomain below."
+        "content": "Only needed for businesses without an FMO-managed account. Those businesses set three integration secrets from Connecture: connecture_api_key and connecture_api_secret (API client credentials), and connecture_account_code (your business code, sent as the ClientID header). Connecture launches at the subdomain below."
       },
       {
         "type": "select",
@@ -150,8 +150,8 @@
       "auth_credentials": {
         "payload": "grant_type=client_credentials",
         "auth_url": "https://auth.drxwebservices.com/v1/auth/token?format=json",
-        "password": "{{secret.connecture_password}}",
-        "username": "{{secret.connecture_username}}",
+        "password": "{{secret.connecture_api_secret}}",
+        "username": "{{secret.connecture_api_key}}",
         "content_type": "application/x-www-form-urlencoded",
         "token_field_name": "access_token"
       },
@@ -166,12 +166,12 @@
       "auth_credentials": {
         "payload": "grant_type=client_credentials",
         "auth_url": "https://auth.cnxrwebservices.com/v1/auth/token?format=json",
-        "password": "{{secret.connecture_password}}",
-        "username": "{{secret.connecture_username}}",
+        "password": "{{secret.connecture_api_secret}}",
+        "username": "{{secret.connecture_api_key}}",
         "content_type": "application/x-www-form-urlencoded",
         "token_field_name": "access_token"
       },
-      "custom_headers": { "ClientID": "{{secret.connecture_client_id}}" },
+      "custom_headers": { "ClientID": "{{secret.connecture_account_code}}" },
       "base_service_url": "https://www.cnxrwebservices.com/APITools/V1/",
       "required_entitlement": ""
     },
@@ -183,8 +183,8 @@
       "auth_credentials": {
         "payload": "grant_type=client_credentials",
         "auth_url": "https://staging.drxwebservices.com/AuthAlt/v1/auth/token?format=json",
-        "password": "{{secret.connecture_password}}",
-        "username": "{{secret.connecture_username}}",
+        "password": "{{secret.connecture_api_secret}}",
+        "username": "{{secret.connecture_api_key}}",
         "content_type": "application/x-www-form-urlencoded",
         "token_field_name": "access_token"
       },
@@ -199,12 +199,12 @@
       "auth_credentials": {
         "payload": "grant_type=client_credentials",
         "auth_url": "https://staging-auth.cnxrwebservices.com/v1/auth/token?format=json",
-        "password": "{{secret.connecture_password}}",
-        "username": "{{secret.connecture_username}}",
+        "password": "{{secret.connecture_api_secret}}",
+        "username": "{{secret.connecture_api_key}}",
         "content_type": "application/x-www-form-urlencoded",
         "token_field_name": "access_token"
       },
-      "custom_headers": { "ClientID": "{{secret.connecture_client_id}}" },
+      "custom_headers": { "ClientID": "{{secret.connecture_account_code}}" },
       "base_service_url": "https://staging.cnxrwebservices.com/APITools/V1/",
       "required_entitlement": ""
     }
