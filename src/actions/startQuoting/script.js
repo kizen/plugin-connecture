@@ -550,14 +550,17 @@ async function createSession(pluginConfig, envConfig) {
 
   // Secrets can't be read from the browser, so a missing one only shows up as a proxy failure:
   // 400 for an unresolved {{secret.KEY}}, 503 when the token exchange is rejected.
-  if (
-    error &&
-    envConfig.required_secrets &&
-    error.upstreamStatus === undefined &&
-    [400, 503].includes(error.proxyStatus)
-  ) {
+  if (error && envConfig.required_secrets && error.upstreamStatus === undefined && error.proxyStatus === 400) {
     this.showToast(
-      `Connecture credentials are missing or invalid. Please ask your administrator to set the ${envConfig.required_secrets.join(", ")} integration secrets for this plugin.`,
+      `Connecture credentials are missing. Please ask your administrator to set the ${envConfig.required_secrets.join(", ")} integration secrets for this plugin.`,
+      { variant: "failure", autohide: false },
+    );
+    return null;
+  }
+
+  if (error && envConfig.required_secrets && error.upstreamStatus === undefined && error.proxyStatus === 503) {
+    this.showToast(
+      "Connecture rejected the connecture_username and connecture_password integration secrets. Please ask your administrator to confirm they are Connecture API credentials for the Connecture Environment selected in the plugin settings.",
       { variant: "failure", autohide: false },
     );
     return null;
