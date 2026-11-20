@@ -59,6 +59,8 @@ const CONFIG = {
   },
   GENERIC_LAUNCH_PATH: "/PC/Agent/Profile/EditProfile",
   GENERIC_REQUIRED_SECRETS: ["connecture_username", "connecture_password", "connecture_client_id"],
+  MISSING_CLIENT_ID_MESSAGE:
+    "Pharmacies and providers were not sent to Connecture because the connecture_client_id integration secret is missing. Please ask your administrator to set it.",
   REQUIRED_ADDRESS_FIELDS: ["street_address_1", "city", "zipcode", "state"],
   SPECIAL_FIELDS: ["drugs", "providers", "pharmacies"],
 };
@@ -304,6 +306,14 @@ async function processRelatedRecords(fields, obj, toolsServiceName, contactId, c
 
   const promiseResults = await Promise.allSettled(promises);
 
+  if (
+    promiseResults.some(
+      (result) => result.status === "rejected" && result.reason?.message === CONFIG.MISSING_CLIENT_ID_MESSAGE,
+    )
+  ) {
+    this.showToast(CONFIG.MISSING_CLIENT_ID_MESSAGE, { variant: "failure", autohide: false });
+  }
+
   // Handle results
   let resultIndex = 0;
   if (specialFields.pharmaciesField) {
@@ -358,15 +368,20 @@ async function processPharmacies(pharmaciesField, toolsServiceName, contactId, c
   const pharmacyIds = await processForField.call(this, pharmaciesField, contactId);
   if (pharmacyIds.length === 0) return [];
 
-  const pharmacyData = await Promise.allSettled(
+  const pharmacyData = await Promise.all(
     pharmacyIds.map((pharmacy) =>
-      this.get(this.getServiceUrl(toolsServiceName, `/quoting-api/Pharmacies/${pharmacy.name}?PharmacyIDType=2`), {
-        // headers: { ClientID: clientId },
-      }),
+      this.getWithErrors(
+        this.getServiceUrl(toolsServiceName, `/quoting-api/Pharmacies/${pharmacy.name}?PharmacyIDType=2`),
+      ),
     ),
   );
 
-  return pharmacyData.filter((result) => result.status === "fulfilled" && result.value).map((result) => result.value);
+  // The proxy rejects the call with a 400 when the ClientID header's secret is empty
+  if (pharmacyData.some(([, error]) => error?.proxyStatus === 400 && error.upstreamStatus === undefined)) {
+    throw new Error(CONFIG.MISSING_CLIENT_ID_MESSAGE);
+  }
+
+  return pharmacyData.filter(([data]) => data).map(([data]) => data);
 }
 
 async function processProviders(providersField, toolsServiceName, contactId, clientId) {
@@ -390,47 +405,45 @@ async function processProviders(providersField, toolsServiceName, contactId, cli
 
   if (validProviders.length === 0) return [];
 
-  try {
-    const npis = validProviders
-      .map((p) => encodeURIComponent(p.name))
-      .filter(Boolean)
-      .join(",");
-    if (!npis) return [];
+  const npis = validProviders
+    .map((p) => encodeURIComponent(p.name))
+    .filter(Boolean)
+    .join(",");
+  if (!npis) return [];
 
-    const connectureResponse = await this.get(
-      this.getServiceUrl(toolsServiceName, `/quoting-api/Providers/GetByNPIs?npis=${npis}`),
-      // { headers: { ClientID: clientId } },
-    );
+  const [connectureResponse, error] = await this.getWithErrors(
+    this.getServiceUrl(toolsServiceName, `/quoting-api/Providers/GetByNPIs?npis=${npis}`),
+  );
 
-    if (!connectureResponse?.Providers) return [];
-
-    const providerMap = validProviders.reduce((acc, record) => {
-      if (record.name) acc[record.name] = record;
-      return acc;
-    }, {});
-
-    return connectureResponse.Providers.map((provider) => {
-      const record = providerMap[provider.NPI];
-      const providerZip = record?.providerFieldValues?.zip;
-
-      const selectedAddress =
-        provider.Addresses?.find((addr) => addr.ZipCode === providerZip) ?? provider.Addresses?.[0];
-
-      return selectedAddress
-        ? {
-            ProviderID: provider.Id,
-            isPrimary: provider.IsPrimary,
-            isVBC: provider.IsVBC,
-            isNewPatient: provider.IsNewPatient,
-            vbcOrganizationName: provider.VBCOrganizationName,
-            addressId: selectedAddress.Id,
-          }
-        : null;
-    }).filter(Boolean);
-  } catch (error) {
-    // Error already logged, return empty array
-    return [];
+  // The proxy rejects the call with a 400 when the ClientID header's secret is empty
+  if (error?.proxyStatus === 400 && error.upstreamStatus === undefined) {
+    throw new Error(CONFIG.MISSING_CLIENT_ID_MESSAGE);
   }
+
+  if (!connectureResponse?.Providers) return [];
+
+  const providerMap = validProviders.reduce((acc, record) => {
+    if (record.name) acc[record.name] = record;
+    return acc;
+  }, {});
+
+  return connectureResponse.Providers.map((provider) => {
+    const record = providerMap[provider.NPI];
+    const providerZip = record?.providerFieldValues?.zip;
+
+    const selectedAddress = provider.Addresses?.find((addr) => addr.ZipCode === providerZip) ?? provider.Addresses?.[0];
+
+    return selectedAddress
+      ? {
+          ProviderID: provider.Id,
+          isPrimary: provider.IsPrimary,
+          isVBC: provider.IsVBC,
+          isNewPatient: provider.IsNewPatient,
+          vbcOrganizationName: provider.VBCOrganizationName,
+          addressId: selectedAddress.Id,
+        }
+      : null;
+  }).filter(Boolean);
 }
 
 async function getDrugData(drugId) {
