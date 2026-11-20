@@ -177,9 +177,10 @@ async function promptForNpn() {
 
 function getGenericEnvConfig() {
   const subdomain = this.config?.connectureSubdomain?.trim();
-  if (!subdomain) {
+  // Letters, digits and hyphens only, so the launch URL can't point outside destinationrx.com
+  if (!subdomain || !/^[a-z0-9-]+$/i.test(subdomain)) {
     this.showToast(
-      "Your business is not configured to connect to Connecture. Please ask your administrator to set the Connecture Subdomain in the plugin settings.",
+      "Your business is not configured to connect to Connecture. Please ask your administrator to set a valid Connecture Subdomain in the plugin settings.",
       { variant: "failure", autohide: false },
     );
     return null;
