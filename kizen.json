@@ -40,7 +40,7 @@
         "key": "connectureSubdomain",
         "required": false,
         "placeholder": "kizen (for kizen.destinationrx.com)",
-        "tooltip": "Your Connecture site subdomain, like kizen for kizen.destinationrx.com. Letters, numbers, and hyphens only.",
+        "tooltip": "Letters, numbers, and hyphens only.",
         "validation_pattern": "^[a-zA-Z0-9-]*$"
       }
     ]
