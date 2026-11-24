@@ -1,6 +1,6 @@
 {
   "name": "Connecture",
-  "version": "1.2.6",
+  "version": "2.0.0",
   "published": true,
   "api_name": "connecture",
   "description": "Connecture integration for Agent CRM.",
@@ -12,7 +12,64 @@
   "engine": "1.0.0",
   "release_notes_directory": "releaseNotes/",
   "config_template": {},
-  "base_config": {},
+  "base_config": {
+    "secrets": ["api_client_id", "api_client_secret", "account_code"]
+  },
+  "setup_assistant": {
+    "actions": ["start_quoting_in_connecture"],
+    "fields": [
+      {
+        "type": "description",
+        "key": "generic_intro",
+        "content": "**Only needed for businesses without an FMO-managed account.**\n\nYou receive the API client ID, API client secret, and account code from Connecture. They are separate from your Connecture login, which you use to sign in to the Connecture website."
+      },
+      {
+        "type": "select",
+        "label": "Connecture Environment",
+        "key": "connectureEnvironment",
+        "required": false,
+        "tooltip": "Production connects to your live Connecture account. Staging connects to your Connecture test account. The API client ID and secret must be for the environment you choose.",
+        "options": [
+          { "label": "Production", "value": "production" },
+          { "label": "Staging", "value": "staging" }
+        ]
+      },
+      {
+        "type": "text",
+        "label": "Connecture Subdomain",
+        "key": "connectureSubdomain",
+        "required": false,
+        "placeholder": "kizen (for kizen.destinationrx.com)",
+        "tooltip": "Letters, numbers, and hyphens only.",
+        "validation_pattern": "^[a-zA-Z0-9-]*$"
+      },
+      {
+        "type": "api_key",
+        "label": "API Client ID",
+        "key": "apiClientId",
+        "secret": "api_client_id",
+        "required": false,
+        "placeholder": "Enter API client ID"
+      },
+      {
+        "type": "api_key",
+        "label": "API Client Secret",
+        "key": "apiClientSecret",
+        "secret": "api_client_secret",
+        "required": false,
+        "placeholder": "Enter API client secret"
+      },
+      {
+        "type": "api_key",
+        "label": "Account Code",
+        "key": "accountCode",
+        "secret": "account_code",
+        "required": false,
+        "placeholder": "Enter account code",
+        "tooltip": "The code Connecture uses to identify your account."
+      }
+    ]
+  },
   "developer_business_id": {
     "integration": "725f64e5-4124-46cc-92c4-d16049add76e",
     "staging": "eedc1c3a-281d-4a26-88ea-a684c85fa612",
@@ -112,6 +169,72 @@
       "custom_headers": { "ClientID": "JSA" },
       "base_service_url": "https://www.cnxrwebservices.com/APITools/V1/",
       "required_entitlement": "connecture_integration_jsa"
+    },
+    {
+      "auth_type": "basic_auth_token_exchange",
+      "auth_level": "business",
+      "display_name": "plancompare",
+      "service_name": "plancompare",
+      "auth_credentials": {
+        "payload": "grant_type=client_credentials",
+        "auth_url": "https://auth.drxwebservices.com/v1/auth/token?format=json",
+        "password": "{{secret.api_client_secret}}",
+        "username": "{{secret.api_client_id}}",
+        "content_type": "application/x-www-form-urlencoded",
+        "token_field_name": "access_token"
+      },
+      "base_service_url": "https://drxwebservices.com/APIPlanCompare/v1/",
+      "required_entitlement": ""
+    },
+    {
+      "auth_type": "basic_auth_token_exchange",
+      "auth_level": "business",
+      "display_name": "tools",
+      "service_name": "tools",
+      "auth_credentials": {
+        "payload": "grant_type=client_credentials",
+        "auth_url": "https://auth.cnxrwebservices.com/v1/auth/token?format=json",
+        "password": "{{secret.api_client_secret}}",
+        "username": "{{secret.api_client_id}}",
+        "content_type": "application/x-www-form-urlencoded",
+        "token_field_name": "access_token"
+      },
+      "custom_headers": { "ClientID": "{{secret.account_code}}" },
+      "base_service_url": "https://www.cnxrwebservices.com/APITools/V1/",
+      "required_entitlement": ""
+    },
+    {
+      "auth_type": "basic_auth_token_exchange",
+      "auth_level": "business",
+      "display_name": "plancomparestaging",
+      "service_name": "plancomparestaging",
+      "auth_credentials": {
+        "payload": "grant_type=client_credentials",
+        "auth_url": "https://staging.drxwebservices.com/AuthAlt/v1/auth/token?format=json",
+        "password": "{{secret.api_client_secret}}",
+        "username": "{{secret.api_client_id}}",
+        "content_type": "application/x-www-form-urlencoded",
+        "token_field_name": "access_token"
+      },
+      "base_service_url": "https://staging.drxwebservices.com/APIPlanCompareAlt/v1/",
+      "required_entitlement": ""
+    },
+    {
+      "auth_type": "basic_auth_token_exchange",
+      "auth_level": "business",
+      "display_name": "toolsstaging",
+      "service_name": "toolsstaging",
+      "auth_credentials": {
+        "payload": "grant_type=client_credentials",
+        "auth_url": "https://staging-auth.cnxrwebservices.com/v1/auth/token?format=json",
+        "password": "{{secret.api_client_secret}}",
+        "username": "{{secret.api_client_id}}",
+        "content_type": "application/x-www-form-urlencoded",
+        "token_field_name": "access_token"
+      },
+      "custom_headers": { "ClientID": "{{secret.account_code}}" },
+      "base_service_url": "https://staging.cnxrwebservices.com/APITools/V1/",
+      "required_entitlement": ""
     }
   ]
 }
